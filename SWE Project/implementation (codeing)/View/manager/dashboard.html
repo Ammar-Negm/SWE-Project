@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manager Dashboard - WareLogix</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<div id="wrapper">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">⬡ WareLogix</div>
+    <nav class="nav flex-column mt-3">
+      <a class="nav-link active" href="dashboard.html"><i class="bi bi-grid-1x2"></i> Dashboard</a>
+      <a class="nav-link" href="inventory.html"><i class="bi bi-box-seam"></i> Inventory</a>
+      <a class="nav-link" href="zonal-optimizer.html"><i class="bi bi-layers"></i> Zonal Optimizer</a>
+      <a class="nav-link" href="procurement.html"><i class="bi bi-cart3"></i> Procurement</a>
+      <a class="nav-link" href="supplier-list.html"><i class="bi bi-truck"></i> Suppliers</a>
+      <a class="nav-link" href="analytics.html"><i class="bi bi-graph-up"></i> Analytics</a>
+      <a class="nav-link" href="system-admin.html"><i class="bi bi-gear"></i> System Admin</a>
+    </nav>
+    <div class="user-info mt-auto">
+      <i class="bi bi-person-circle"></i> Logged in as: <span class="php-dynamic text-warning">Manager</span>
+    </div>
+  </aside>
+  <main class="main-content">
+    <nav class="top-navbar">
+      <div class="d-flex align-items-center">
+        <button class="btn btn-light d-md-none me-3" id="sidebarToggle" aria-label="Toggle Sidebar">
+          <i class="bi bi-list"></i>
+        </button>
+        <h4 class="mb-0 fw-bold">Dashboard</h4>
+      </div>
+      <div class="d-flex align-items-center gap-3">
+        <div class="position-relative cursor-pointer">
+          <i class="bi bi-bell fs-5"></i>
+          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger php-dynamic">
+            5
+          </span>
+        </div>
+        <div class="dropdown">
+          <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <img src="https://ui-avatars.com/api/?name=Admin&background=1A3C5E&color=fff" alt="Avatar" class="rounded-circle" width="32">
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="#">Profile</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item text-danger" href="../login.html">Logout</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <div class="container-fluid py-4">
+      
+      <div class="row mb-4">
+        <div class="col-md-3">
+          <div class="card p-3">
+            <h6 class="text-muted">Total SKUs in Warehouse</h6>
+            <h3 class="fw-bold php-dynamic">4,821</h3>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card p-3">
+            <h6 class="text-muted">Warehouse Capacity Used</h6>
+            <h3 class="fw-bold php-dynamic">73%</h3>
+            <div class="progress mt-2" style="height: 6px;">
+              <div class="progress-bar bg-warning" role="progressbar" style="width: 73%" aria-valuenow="73" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card p-3">
+            <h6 class="text-muted">Open Purchase Orders</h6>
+            <h3 class="fw-bold php-dynamic">12</h3>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card p-3 border-start border-danger border-4">
+            <h6 class="text-muted">Pending Alerts</h6>
+            <h3 class="fw-bold text-danger php-dynamic">5 <span class="badge bg-danger fs-6 align-middle">Action Required</span></h3>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-lg-8">
+          <div class="card p-4 h-100">
+            <h5 class="fw-bold mb-3">Recent Inventory Alerts</h5>
+            <div class="table-responsive">
+              <table class="table table-hover align-middle">
+                <thead>
+                  <tr>
+                    <th>Zone</th>
+                    <th>Item</th>
+                    <th>Alert Type</th>
+                    <th>Severity</th>
+                    <th>Time</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="php-dynamic">A-12</span></td>
+                    <td><span class="php-dynamic">SKU-00234 (Chilled Produce)</span></td>
+                    <td><span class="php-dynamic">Temp Exceeded (8°C)</span></td>
+                    <td><span class="badge bg-danger">Critical</span></td>
+                    <td><span class="php-dynamic">10 mins ago</span></td>
+                  </tr>
+                  <tr>
+                    <td><span class="php-dynamic">B-05</span></td>
+                    <td><span class="php-dynamic">SKU-00891 (Raw Chemicals)</span></td>
+                    <td><span class="php-dynamic">Low Stock</span></td>
+                    <td><span class="badge bg-warning text-dark">Warning</span></td>
+                    <td><span class="php-dynamic">1 hr ago</span></td>
+                  </tr>
+                  <tr>
+                    <td><span class="php-dynamic">C-22</span></td>
+                    <td><span class="php-dynamic">SKU-00445 (Packaging Boxes)</span></td>
+                    <td><span class="php-dynamic">Low Stock</span></td>
+                    <td><span class="badge bg-warning text-dark">Warning</span></td>
+                    <td><span class="php-dynamic">2 hrs ago</span></td>
+                  </tr>
+                  <tr>
+                    <td><span class="php-dynamic">A-02</span></td>
+                    <td><span class="php-dynamic">SKU-00112 (Dairy)</span></td>
+                    <td><span class="php-dynamic">Expiry Warning (2 Days)</span></td>
+                    <td><span class="badge bg-danger">Critical</span></td>
+                    <td><span class="php-dynamic">3 hrs ago</span></td>
+                  </tr>
+                  <tr>
+                    <td><span class="php-dynamic">D-15</span></td>
+                    <td><span class="php-dynamic">SKU-00999 (Pallet Jack)</span></td>
+                    <td><span class="php-dynamic">Weight Discrepancy</span></td>
+                    <td><span class="badge bg-secondary">Info</span></td>
+                    <td><span class="php-dynamic">5 hrs ago</span></td>
+                  </tr>
+                  </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4">
+          <div class="card p-4 mb-4">
+            <h5 class="fw-bold mb-3">Active Floor Staff</h5>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                <div>
+                  <span class="pulse-dot pulse-green me-2"></span>
+                  <span class="php-dynamic fw-bold">Ahmed Ali</span>
+                  <div class="small text-muted php-dynamic">Picking Order #BPG-0047</div>
+                </div>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                <div>
+                  <span class="pulse-dot pulse-green me-2"></span>
+                  <span class="php-dynamic fw-bold">Sara Kamal</span>
+                  <div class="small text-muted php-dynamic">Packing Station 2</div>
+                </div>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                <div>
+                  <span class="pulse-dot pulse-green me-2"></span>
+                  <span class="php-dynamic fw-bold">Omar Tarek</span>
+                  <div class="small text-muted php-dynamic">QC Inspection Dock A</div>
+                </div>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                <div>
+                  <span class="pulse-dot pulse-red me-2"></span>
+                  <span class="php-dynamic fw-bold">Mona Zaki</span>
+                  <div class="small text-muted php-dynamic">On Break</div>
+                </div>
+              </li>
+              </ul>
+          </div>
+
+          <div class="card p-4">
+            <h5 class="fw-bold mb-3">Upcoming Reorders</h5>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item px-0">
+                <div class="d-flex justify-content-between">
+                  <span class="php-dynamic fw-bold">SKU-00445</span>
+                  <span class="badge bg-warning text-dark php-dynamic">Due in 2 days</span>
+                </div>
+                <div class="small text-muted php-dynamic">Supplier: AlphaParts Ltd.</div>
+              </li>
+              <li class="list-group-item px-0">
+                <div class="d-flex justify-content-between">
+                  <span class="php-dynamic fw-bold">SKU-00112</span>
+                  <span class="badge bg-danger php-dynamic">Due Today</span>
+                </div>
+                <div class="small text-muted php-dynamic">Supplier: FreshFarm Co.</div>
+              </li>
+              <li class="list-group-item px-0">
+                <div class="d-flex justify-content-between">
+                  <span class="php-dynamic fw-bold">SKU-00891</span>
+                  <span class="badge bg-secondary php-dynamic">Due in 5 days</span>
+                </div>
+                <div class="small text-muted php-dynamic">Supplier: ChemSupply Inc.</div>
+              </li>
+              </ul>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // Simple Sidebar Toggle for Mobile
+  document.getElementById('sidebarToggle').addEventListener('click', function() {
+    document.getElementById('sidebar').classList.toggle('show');
+  });
+</script>
+</body>
+</html>

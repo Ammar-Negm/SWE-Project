@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Supplier Dashboard - WareLogix</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div id="wrapper">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">⬡ WareLogix</div>
+    <nav class="nav flex-column mt-3">
+      <a class="nav-link active" href="dashboard.html"><i class="bi bi-grid-1x2"></i> Dashboard</a>
+      <a class="nav-link" href="purchase-orders.html"><i class="bi bi-cart3"></i> Purchase Orders</a>
+      <a class="nav-link" href="invoice-manager.html"><i class="bi bi-receipt"></i> Invoice Manager</a>
+    </nav>
+    <div class="user-info mt-auto">
+      <i class="bi bi-building"></i> Logged in as: <span class="php-dynamic text-info">AlphaParts Ltd.</span>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <nav class="top-navbar">
+      <div class="d-flex align-items-center">
+        <button class="btn btn-light d-md-none me-3" id="sidebarToggle"><i class="bi bi-list"></i></button>
+        <h4 class="mb-0 fw-bold">Supplier Portal</h4>
+      </div>
+      <div class="d-flex align-items-center gap-3">
+        <div class="position-relative cursor-pointer">
+          <i class="bi bi-bell fs-5"></i>
+          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">3</span>
+        </div>
+        <div class="dropdown">
+          <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+            <img src="https://ui-avatars.com/api/?name=Alpha+Parts&background=0dcaf0&color=fff" class="rounded-circle" width="32">
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container-fluid py-4">
+      <div class="card bg-primary-custom text-white p-4 mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h3 class="fw-bold mb-1 php-dynamic">AlphaParts Ltd.</h3>
+            <p class="mb-0 text-white-50">Supplier Portal Dashboard</p>
+          </div>
+          <div class="circular-progress bg-white text-dark shadow">
+            <span class="php-dynamic">98%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="row mb-4">
+        <div class="col-md-4 mb-3 mb-md-0">
+          <div class="card p-3 h-100 shadow-sm border-start border-warning border-4">
+            <h6 class="text-muted">Open POs</h6>
+            <h2 class="fw-bold php-dynamic">4</h2>
+          </div>
+        </div>
+        <div class="col-md-4 mb-3 mb-md-0">
+          <div class="card p-3 h-100 shadow-sm border-start border-success border-4">
+            <h6 class="text-muted">Pending Invoices</h6>
+            <h2 class="fw-bold php-dynamic">2</h2>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card p-3 h-100 shadow-sm border-start border-info border-4">
+            <h6 class="text-muted">Avg. Lead Time</h6>
+            <h2 class="fw-bold php-dynamic">4.2 <span class="fs-6 text-muted">days</span></h2>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-lg-8 mb-4">
+          <div class="card p-4 h-100">
+            <div class="d-flex justify-content-between mb-3">
+              <h5 class="fw-bold">Recent Purchase Orders</h5>
+              <a href="purchase-orders.html" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead class="table-light"><tr><th>PO #</th><th>Date</th><th>Amount</th><th>Status</th></tr></thead>
+                <tbody>
+                  <tr>
+                    <td class="fw-bold php-dynamic">PO-20045</td>
+                    <td class="php-dynamic">Oct 12, 2025</td>
+                    <td class="php-dynamic">$4,250.00</td>
+                    <td><span class="badge bg-warning text-dark">In Transit</span></td>
+                  </tr>
+                  <tr>
+                    <td class="fw-bold php-dynamic">PO-20030</td>
+                    <td class="php-dynamic">Oct 01, 2025</td>
+                    <td class="php-dynamic">$1,800.00</td>
+                    <td><span class="badge bg-success">Delivered</span></td>
+                  </tr>
+                  </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4 mb-4">
+          <div class="card p-4 h-100">
+            <h5 class="fw-bold mb-3">Notifications</h5>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item px-0 border-bottom">
+                <div class="d-flex w-100 justify-content-between">
+                  <strong class="text-danger">Action Required</strong>
+                  <small>1 day ago</small>
+                </div>
+                <p class="mb-1 text-muted small">PO #20046 requires shipping confirmation.</p>
+              </li>
+              <li class="list-group-item px-0">
+                <div class="d-flex w-100 justify-content-between">
+                  <strong class="text-success">Invoice Matched</strong>
+                  <small>3 days ago</small>
+                </div>
+                <p class="mb-1 text-muted small">Invoice #INV-099 matched successfully and queued for payment.</p>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  document.getElementById('sidebarToggle').addEventListener('click', function() {
+    document.getElementById('sidebar').classList.toggle('show');
+  });
+</script>
+</body>
+</html>
