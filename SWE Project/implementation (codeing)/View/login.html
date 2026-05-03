@@ -15,7 +15,8 @@
       <p class="text-muted">Intelligent Fulfillment, Simplified.</p>
     </div>
 
-    <form method="POST" action="process_login.php">
+    <!-- <form method="POST" action="process_login.php"> -->
+    <form method="GET" action="#">
       <div class="mb-3">
         <label for="email" class="form-label">Email address</label>
         <input type="email" class="form-control" id="email" name="email" required placeholder="user@warelogix.com">
@@ -32,9 +33,25 @@
           <option value="supplier">Supplier</option>
         </select>
       </div>
-      <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">Sign In</button>
+      <button type="submit" class="btn btn-primary w-100 py-2 fw-bold" onclick="if(document.getElementById('role').textContent)">Sign In</button>
     </form>
   </div>
+
+  <script>
+    // Example of handling form submission (for demonstration purposes only)
+    document.querySelector('form').addEventListener('submit', function(event) {
+      event.preventDefault(); // Prevent actual form submission
+
+      const role = document.getElementById('role').value;
+      if (role === 'manager') {
+        window.location.href = 'manager/dashboard.html';
+      } else if (role === 'staff') {
+        window.location.href = 'staff/dashboard.html';
+      } else if (role === 'supplier') {
+        window.location.href = 'supplier/dashboard.html';
+      }
+    });
+  </script>
 
 </body>
 </html>
