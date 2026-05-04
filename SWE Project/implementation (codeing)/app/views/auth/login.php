@@ -5,7 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - WareLogix</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <!-- <link rel="stylesheet" href="style.css"> -->
+<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/style.css">
+
 </head>
 <body class="login-bg">
 
@@ -16,7 +18,7 @@
     </div>
 
     <!-- <form method="POST" action="process_login.php"> -->
-    <form method="GET" action="#">
+      <form method="POST" action="<?= BASE_URL ?>Auth/login">
       <div class="mb-3">
         <label for="email" class="form-label">Email address</label>
         <input type="email" class="form-control" id="email" name="email" required placeholder="user@warelogix.com">
@@ -33,25 +35,26 @@
           <option value="supplier">Supplier</option>
         </select>
       </div>
-      <button type="submit" class="btn btn-primary w-100 py-2 fw-bold" onclick="if(document.getElementById('role').textContent)">Sign In</button>
+      <?php if (!empty($data['error'])): ?>
+    <div class="alert alert-danger">
+        <?= htmlspecialchars($data['error']) ?>
+    </div>
+<?php endif; ?>
+      <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">Sign In</button>
     </form>
   </div>
-
-  <script>
-    // Example of handling form submission (for demonstration purposes only)
-    document.querySelector('form').addEventListener('submit', function(event) {
-      event.preventDefault(); // Prevent actual form submission
-
-      const role = document.getElementById('role').value;
-      if (role === 'manager') {
-        window.location.href = 'manager/dashboard.html';
-      } else if (role === 'staff') {
-        window.location.href = 'staff/dashboard.html';
-      } else if (role === 'supplier') {
-        window.location.href = 'supplier/dashboard.html';
-      }
-    });
-  </script>
-
+<style>
+  body {
+    background-color: #1A3C5E;
+    background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 2px, transparent 2px, transparent 50px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+  }
+  .text-primary-custom { color: #1A3C5E !important; }
+  .btn-primary { background-color: #1A3C5E; border-color: #1A3C5E; }
+  .btn-primary:hover { background-color: #122b44; border-color: #122b44; }
+</style>
 </body>
 </html>
