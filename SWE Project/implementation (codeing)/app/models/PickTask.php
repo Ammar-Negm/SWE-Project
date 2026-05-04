@@ -58,7 +58,7 @@ class PickTask {
             $newQty = $currentItem['quantity'] - $task['quantity_to_pick'];
             
             $inventory->updateQuantity($task['inv_item_id'], $newQty);
-
+            
             $this->db->commit();
             return true;
         } catch (Exception $e) {

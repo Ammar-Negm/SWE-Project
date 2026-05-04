@@ -31,6 +31,7 @@ class InventoryItem {
             ":q" => $quantity
         ]);
     }
+    
 
     public function updateStatus($id, $status) {
         $stmt = $this->db->prepare("UPDATE inventory_item SET status = :s WHERE inv_item_id = :id");
