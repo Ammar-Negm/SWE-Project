@@ -1,4 +1,4 @@
-<?php
+<!-- <?php
 
 class ProductModel
 {
@@ -60,4 +60,4 @@ class ProductModel
         $stmt = $this->db->prepare("DELETE FROM product WHERE product_id = :id");
         return $stmt->execute([':id' => $id]);
     }
-}
+} 
