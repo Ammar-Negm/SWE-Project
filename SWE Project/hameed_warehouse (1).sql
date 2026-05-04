@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 04, 2026 at 12:54 PM
+-- Generation Time: May 04, 2026 at 07:11 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -87,7 +87,8 @@ INSERT INTO `floorstaff` (`staff_id`, `name`, `email`, `password`, `shift_start`
 (8, 'tester', 'test@test.com', '123', '08:00:00', '16:00:00', 90, NULL),
 (9, 'staff', 's@s.com', '123', '08:00:00', '16:00:00', 90, NULL),
 (10, 'Ahmed', 'ahmed@test.com', '$2y$10$5FF5ZRva1AXA/twIKUVU1.gmijcRHJaSQV/2LqdMkGIh.MqYALZHS', '08:00:00', '16:00:00', 90, NULL),
-(11, 'Ahmed', 'ahmed@test.com', '$2y$10$Sr1k/dIU1SN9/NxQFtsIW.OO8Nz.S3qeMwDhzW/SbjWVvswyRQNTW', '08:00:00', '16:00:00', 90, NULL);
+(11, 'Ahmed', 'ahmed@test.com', '$2y$10$Sr1k/dIU1SN9/NxQFtsIW.OO8Nz.S3qeMwDhzW/SbjWVvswyRQNTW', '08:00:00', '16:00:00', 90, NULL),
+(12, 'Ahmed', 'ahmed@test.com', '$2y$10$uxNVbeDrkv18Y7hOfvARC.fZkDv/BpuOqTjk9OtzpZZ8v2ouuy0a6', '08:00:00', '16:00:00', 90, NULL);
 
 -- --------------------------------------------------------
 
@@ -108,8 +109,9 @@ CREATE TABLE `inventory_item` (
 --
 
 INSERT INTO `inventory_item` (`inv_item_id`, `product_id`, `bin_id`, `quantity`, `status`) VALUES
-(1, 1, 1, 95, 'Available'),
-(5, 1, 1, 100, 'Available');
+(1, 1, 1, 90, 'Available'),
+(5, 1, 1, 100, 'Available'),
+(6, 1, 1, 100, 'Available');
 
 -- --------------------------------------------------------
 
@@ -157,7 +159,8 @@ CREATE TABLE `pick_list` (
 
 INSERT INTO `pick_list` (`pick_list_id`, `created_at`, `status`, `optimized_route`, `assigned_staff_id`) VALUES
 (3, '2026-05-04 02:17:57', 'Open', NULL, 1),
-(4, '2026-05-04 02:19:56', 'Open', NULL, 1);
+(4, '2026-05-04 02:19:56', 'Open', NULL, 1),
+(5, '2026-05-04 19:02:06', 'Open', NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -178,7 +181,8 @@ CREATE TABLE `pick_task` (
 --
 
 INSERT INTO `pick_task` (`picktask_id`, `pick_list_id`, `quantity_to_pick`, `status`, `inv_item_id`) VALUES
-(4, 4, 5, 'Picked', 1);
+(4, 4, 5, 'Picked', 1),
+(5, 5, 5, 'Picked', 1);
 
 -- --------------------------------------------------------
 
@@ -473,13 +477,13 @@ ALTER TABLE `client`
 -- AUTO_INCREMENT for table `floorstaff`
 --
 ALTER TABLE `floorstaff`
-  MODIFY `staff_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `staff_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `inventory_item`
 --
 ALTER TABLE `inventory_item`
-  MODIFY `inv_item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `inv_item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `order`
@@ -491,13 +495,13 @@ ALTER TABLE `order`
 -- AUTO_INCREMENT for table `pick_list`
 --
 ALTER TABLE `pick_list`
-  MODIFY `pick_list_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `pick_list_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `pick_task`
 --
 ALTER TABLE `pick_task`
-  MODIFY `picktask_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `picktask_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `product`
