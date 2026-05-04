@@ -9,19 +9,60 @@ class ManagerController extends Controller
 
     public function __construct()
     {
-        session_start();
-        if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'manager') {
-            header('Location: index.php?url=Auth/login');
-            exit;
-        }
+
+
         $this->adminModel   = new AdminModel();
         $this->productModel = new ProductModel();
+    }
+
+    /* ======================
+        MAIN PAGES
+    ====================== */
+
+    public function index()
+    {
+        $this->dashboard();
     }
 
     public function dashboard()
     {
         $this->view("manager/dashboard");
     }
+
+    public function inventory()
+    {
+        $this->view("manager/inventory");
+    }
+
+    public function procurement()
+    {
+        $this->view("manager/procurement");
+    }
+
+    public function analytics()
+    {
+        $this->view("manager/analytics");
+    }
+
+    public function supplier()
+    {
+        $this->view("manager/supplier-list");
+    }
+
+    public function zonalOptimizer()
+    {
+        $this->view("manager/zonal-optimizer");
+    }
+
+    public function systemAdmin()
+    {
+        $users = $this->adminModel->getAllUsers();
+        $this->view("manager/system-admin", ['users' => $users]);
+    }
+
+    /* ======================
+        USER MANAGEMENT
+    ====================== */
 
     public function manageUsers()
     {
@@ -45,9 +86,13 @@ class ManagerController extends Controller
     public function activateEmergencyMode()
     {
         $this->adminModel->logAction($_SESSION['user_id'], 'EMERGENCY_MODE_ACTIVATED');
-        header('Location: index.php?url=Manager/dashboard&alert=emergency');
+        header('Location: index.php?url=Manager/dashboard');
         exit;
     }
+
+    /* ======================
+        PRODUCTS
+    ====================== */
 
     public function listProducts()
     {
@@ -58,32 +103,38 @@ class ManagerController extends Controller
     public function addProduct()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
             $this->productModel->insert([
-                'sku'      => $_POST['sku']      ?? '',
-                'name'     => $_POST['name']     ?? '',
-                'price'    => $_POST['price']    ?? 0,
+                'sku'      => $_POST['sku'] ?? '',
+                'name'     => $_POST['name'] ?? '',
+                'price'    => $_POST['price'] ?? 0,
                 'category' => $_POST['category'] ?? '',
                 'minStock' => $_POST['minStock'] ?? 0,
             ]);
+
             header('Location: index.php?url=Manager/listProducts');
             exit;
         }
+
         $this->view("manager/products/create");
     }
 
     public function editProduct($id)
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
             $this->productModel->update($id, [
-                'sku'      => $_POST['sku']      ?? '',
-                'name'     => $_POST['name']     ?? '',
-                'price'    => $_POST['price']    ?? 0,
+                'sku'      => $_POST['sku'] ?? '',
+                'name'     => $_POST['name'] ?? '',
+                'price'    => $_POST['price'] ?? 0,
                 'category' => $_POST['category'] ?? '',
                 'minStock' => $_POST['minStock'] ?? 0,
             ]);
+
             header('Location: index.php?url=Manager/listProducts');
             exit;
         }
+
         $product = $this->productModel->getById($id);
         $this->view("manager/products/edit", ['product' => $product]);
     }

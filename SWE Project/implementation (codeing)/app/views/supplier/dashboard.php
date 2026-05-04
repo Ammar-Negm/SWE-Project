@@ -24,11 +24,13 @@
 <div id="wrapper">
   <aside class="sidebar" id="sidebar">
     <div class="brand">⬡ WareLogix</div>
+    
+    </nav> 
     <nav class="nav flex-column mt-3">
-      <a class="nav-link active" href="#"><i class="bi bi-grid-1x2"></i> Dashboard</a>
-      <a class="nav-link" href="#"><i class="bi bi-cart3"></i> Purchase Orders</a>
-      <a class="nav-link" href="#"><i class="bi bi-receipt"></i> Invoice Manager</a>
-    </nav>
+  <a class="nav-link active" href="index.php?url=Supplier/dashboard"><i class="bi bi-grid-1x2"></i> Dashboard</a>
+  <a class="nav-link" href="index.php?url=Supplier/orders"><i class="bi bi-cart3"></i> Purchase Orders</a>
+  <a class="nav-link" href="index.php?url=Supplier/invoice"><i class="bi bi-receipt"></i> Invoice Manager</a>
+</nav>
     <div class="user-info mt-auto">
       <i class="bi bi-building"></i> Logged in as:
       <span class="text-info"><?= $_SESSION['user_name'] ?? 'Supplier' ?></span>

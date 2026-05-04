@@ -13,13 +13,12 @@ class StaffController extends Controller
     public function __construct()
     {
         session_start();
-        // if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'staff')
-        if (!isset($_SESSION['role']) || strtolower($_SESSION['role']) !== 'staff')
-             {
+        if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'staff') {
             header('Location: index.php?url=Auth/login');
             exit;
         }
     }
+
     public function index()
     {
         $this->dashboard();
@@ -30,17 +29,13 @@ class StaffController extends Controller
         $this->view("staff/dashboard");
     }
 
-    public function packing()
+    public function inventory()
     {
-        $this->view("staff/packing-station");
+        $this->view("staff/inventory");
     }
 
-    public function picking()
+    public function orders()
     {
-        $this->view("staff/pick-list");
-    }
-    public function qc()
-    {
-        $this->view("staff/qc-inspection");
+        $this->view("staff/orders");
     }
 }
