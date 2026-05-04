@@ -13,14 +13,14 @@
 <div id="wrapper">
   <aside class="sidebar" id="sidebar">
     <div class="brand">⬡ WareLogix</div>
-    <nav class="nav flex-column mt-3">
-  <a class="nav-link active" href="index.php?url=Manager/dashboard"><i class="bi bi-grid-1x2"></i> Dashboard</a>
-  <a class="nav-link" href="index.php?url=Manager/inventory"><i class="bi bi-box-seam"></i> Inventory</a>
-  <a class="nav-link" href="index.php?url=Manager/zonaloptimizer"><i class="bi bi-layers"></i> Zonal Optimizer</a>
-  <a class="nav-link" href="index.php?url=Manager/procurement"><i class="bi bi-cart3"></i> Procurement</a>
-  <a class="nav-link" href="index.php?url=Manager/supplier"><i class="bi bi-truck"></i> Suppliers</a>
-  <a class="nav-link" href="index.php?url=Manager/analytics"><i class="bi bi-graph-up"></i> Analytics</a>
-  <a class="nav-link" href="index.php?url=Manager/systemadmin"><i class="bi bi-gear"></i> System Admin</a>
+   <nav class="nav flex-column mt-3">
+  <a class="nav-link active" href="<?= BASE_URL ?>index.php?url=Manager/dashboard"><i class="bi bi-grid-1x2"></i> Dashboard</a>
+  <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Manager/inventory"><i class="bi bi-box-seam"></i> Inventory</a>
+  <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Manager/zonaloptimizer"><i class="bi bi-layers"></i> Zonal Optimizer</a>
+  <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Manager/procurement"><i class="bi bi-cart3"></i> Procurement</a>
+  <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Manager/supplier"><i class="bi bi-truck"></i> Suppliers</a>
+  <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Manager/analytics"><i class="bi bi-graph-up"></i> Analytics</a>
+  <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Manager/systemadmin"><i class="bi bi-gear"></i> System Admin</a>
 </nav>
     <div class="user-info mt-auto">
       <i class="bi bi-person-circle"></i> Logged in as: <span class="php-dynamic text-warning">Manager</span>

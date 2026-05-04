@@ -15,8 +15,11 @@ require_once '../core/App.php';
 require_once '../core/Controller.php';
 require_once '../core/Database.php';
 
-// define("BASE_URL", '/' . basename(dirname(__DIR__)) . '/public/');
+//  define("BASE_URL", '/' . basename(dirname(__DIR__)) . '/public/');
 // define("BASE_URL", 'index.php?url=');
-define("BASE_URL", '/Php project/SWE-Project/SWE Project/implementation (codeing)/public/');
+//  define("BASE_URL", '/Php project/SWE-Project/SWE Project/implementation (codeing)/public/');
+$basePath = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
+define("BASE_URL", rtrim($basePath, '/') . '/');
+
 
 $app = new App();
