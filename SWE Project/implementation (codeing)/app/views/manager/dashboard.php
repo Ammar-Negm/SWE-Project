@@ -72,6 +72,128 @@
         </div>
       </div>
     </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+          <div class="card p-4 h-100">
+            <h5 class="fw-bold mb-3">Recent Inventory Alerts</h5>
+            <div class="table-responsive">
+              <table class="table table-hover align-middle">
+                <thead>
+                  <tr>
+                    <th>Zone</th>
+                    <th>Item</th>
+                    <th>Alert Type</th>
+                    <th>Severity</th>
+                    <th>Time</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="php-dynamic">A-12</span></td>
+                    <td><span class="php-dynamic">SKU-00234 (Chilled Produce)</span></td>
+                    <td><span class="php-dynamic">Temp Exceeded (8°C)</span></td>
+                    <td><span class="badge bg-danger">Critical</span></td>
+                    <td><span class="php-dynamic">10 mins ago</span></td>
+                  </tr>
+                  <tr>
+                    <td><span class="php-dynamic">B-05</span></td>
+                    <td><span class="php-dynamic">SKU-00891 (Raw Chemicals)</span></td>
+                    <td><span class="php-dynamic">Low Stock</span></td>
+                    <td><span class="badge bg-warning text-dark">Warning</span></td>
+                    <td><span class="php-dynamic">1 hr ago</span></td>
+                  </tr>
+                  <tr>
+                    <td><span class="php-dynamic">C-22</span></td>
+                    <td><span class="php-dynamic">SKU-00445 (Packaging Boxes)</span></td>
+                    <td><span class="php-dynamic">Low Stock</span></td>
+                    <td><span class="badge bg-warning text-dark">Warning</span></td>
+                    <td><span class="php-dynamic">2 hrs ago</span></td>
+                  </tr>
+                  <tr>
+                    <td><span class="php-dynamic">A-02</span></td>
+                    <td><span class="php-dynamic">SKU-00112 (Dairy)</span></td>
+                    <td><span class="php-dynamic">Expiry Warning (2 Days)</span></td>
+                    <td><span class="badge bg-danger">Critical</span></td>
+                    <td><span class="php-dynamic">3 hrs ago</span></td>
+                  </tr>
+                  <tr>
+                    <td><span class="php-dynamic">D-15</span></td>
+                    <td><span class="php-dynamic">SKU-00999 (Pallet Jack)</span></td>
+                    <td><span class="php-dynamic">Weight Discrepancy</span></td>
+                    <td><span class="badge bg-secondary">Info</span></td>
+                    <td><span class="php-dynamic">5 hrs ago</span></td>
+                  </tr>
+                  </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4">
+          <div class="card p-4 mb-4">
+            <h5 class="fw-bold mb-3">Active Floor Staff</h5>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                <div>
+                  <span class="pulse-dot pulse-green me-2"></span>
+                  <span class="php-dynamic fw-bold">Ahmed Ali</span>
+                  <div class="small text-muted php-dynamic">Picking Order #BPG-0047</div>
+                </div>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                <div>
+                  <span class="pulse-dot pulse-green me-2"></span>
+                  <span class="php-dynamic fw-bold">Sara Kamal</span>
+                  <div class="small text-muted php-dynamic">Packing Station 2</div>
+                </div>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                <div>
+                  <span class="pulse-dot pulse-green me-2"></span>
+                  <span class="php-dynamic fw-bold">Omar Tarek</span>
+                  <div class="small text-muted php-dynamic">QC Inspection Dock A</div>
+                </div>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                <div>
+                  <span class="pulse-dot pulse-red me-2"></span>
+                  <span class="php-dynamic fw-bold">Mona Zaki</span>
+                  <div class="small text-muted php-dynamic">On Break</div>
+                </div>
+              </li>
+              </ul>
+          </div>
+
+          <div class="card p-4">
+            <h5 class="fw-bold mb-3">Upcoming Reorders</h5>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item px-0">
+                <div class="d-flex justify-content-between">
+                  <span class="php-dynamic fw-bold">SKU-00445</span>
+                  <span class="badge bg-warning text-dark php-dynamic">Due in 2 days</span>
+                </div>
+                <div class="small text-muted php-dynamic">Supplier: AlphaParts Ltd.</div>
+              </li>
+              <li class="list-group-item px-0">
+                <div class="d-flex justify-content-between">
+                  <span class="php-dynamic fw-bold">SKU-00112</span>
+                  <span class="badge bg-danger php-dynamic">Due Today</span>
+                </div>
+                <div class="small text-muted php-dynamic">Supplier: FreshFarm Co.</div>
+              </li>
+              <li class="list-group-item px-0">
+                <div class="d-flex justify-content-between">
+                  <span class="php-dynamic fw-bold">SKU-00891</span>
+                  <span class="badge bg-secondary php-dynamic">Due in 5 days</span>
+                </div>
+                <div class="small text-muted php-dynamic">Supplier: ChemSupply Inc.</div>
+              </li>
+              </ul>
+          </div>
+        </div>
+      </div>
+
   </main>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
