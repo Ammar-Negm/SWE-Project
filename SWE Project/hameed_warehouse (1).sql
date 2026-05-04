@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 03, 2026 at 08:19 PM
+-- Generation Time: May 04, 2026 at 12:54 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -35,6 +35,14 @@ CREATE TABLE `bin` (
   `shelfLocation` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `bin`
+--
+
+INSERT INTO `bin` (`bin_id`, `zone_id`, `currentWeight`, `maxWeight`, `shelfLocation`) VALUES
+(1, 1, 0, 500, 'A1'),
+(2, 2, 0, 500, 'A1');
+
 -- --------------------------------------------------------
 
 --
@@ -60,21 +68,26 @@ CREATE TABLE `floorstaff` (
   `staff_id` int(11) NOT NULL,
   `name` varchar(255) NOT NULL,
   `email` varchar(255) NOT NULL,
-  `password` varchar(10) NOT NULL,
+  `password` varchar(255) NOT NULL,
   `shift_start` time NOT NULL,
   `shift_end` time NOT NULL,
-  `productivity_score` float NOT NULL
+  `productivity_score` float NOT NULL,
+  `user_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `floorstaff`
 --
 
-INSERT INTO `floorstaff` (`staff_id`, `name`, `email`, `password`, `shift_start`, `shift_end`, `productivity_score`) VALUES
-(1, 'fifo', '', '', '00:00:00', '00:00:00', 0),
-(2, 'zizo', 'staff_1777825586@hameed.com', '123456', '09:00:00', '17:00:00', 98.2),
-(4, 'heeed', 'ahmedhammmeed1212@gmail.com', 'FWC1nF1.)%', '08:00:00', '14:00:00', 1.6),
-(6, 'pipo', 'pipo@gmail.com', '222', '08:00:00', '14:00:00', 1.3);
+INSERT INTO `floorstaff` (`staff_id`, `name`, `email`, `password`, `shift_start`, `shift_end`, `productivity_score`, `user_id`) VALUES
+(1, 'zizo', 'staff_1777825586@hameed.com', '123456', '09:00:00', '17:00:00', 98.2, NULL),
+(4, 'heeed', 'ahmedhammmeed1212@gmail.com', 'FWC1nF1.)%', '08:00:00', '14:00:00', 1.6, NULL),
+(6, 'pipo', 'pipo@gmail.com', '222', '08:00:00', '14:00:00', 1.3, NULL),
+(7, 'Acdemy', 'ahmedhammmeed1212@gmail.com', '$2y$10$iCR7R/Bo49j3zzcgQ732F.skHeLsBTS2SB6KCITQ5qPMAstE2axpa', '00:00:00', '00:00:00', 0, NULL),
+(8, 'tester', 'test@test.com', '123', '08:00:00', '16:00:00', 90, NULL),
+(9, 'staff', 's@s.com', '123', '08:00:00', '16:00:00', 90, NULL),
+(10, 'Ahmed', 'ahmed@test.com', '$2y$10$5FF5ZRva1AXA/twIKUVU1.gmijcRHJaSQV/2LqdMkGIh.MqYALZHS', '08:00:00', '16:00:00', 90, NULL),
+(11, 'Ahmed', 'ahmed@test.com', '$2y$10$Sr1k/dIU1SN9/NxQFtsIW.OO8Nz.S3qeMwDhzW/SbjWVvswyRQNTW', '08:00:00', '16:00:00', 90, NULL);
 
 -- --------------------------------------------------------
 
@@ -86,8 +99,17 @@ CREATE TABLE `inventory_item` (
   `inv_item_id` int(11) NOT NULL,
   `product_id` int(11) NOT NULL,
   `bin_id` int(11) NOT NULL,
-  `quantity` int(11) NOT NULL DEFAULT 0
+  `quantity` int(11) NOT NULL DEFAULT 0,
+  `status` enum('Available','Reserved','Picked','Damaged') DEFAULT 'Available'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `inventory_item`
+--
+
+INSERT INTO `inventory_item` (`inv_item_id`, `product_id`, `bin_id`, `quantity`, `status`) VALUES
+(1, 1, 1, 95, 'Available'),
+(5, 1, 1, 100, 'Available');
 
 -- --------------------------------------------------------
 
@@ -129,6 +151,14 @@ CREATE TABLE `pick_list` (
   `assigned_staff_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `pick_list`
+--
+
+INSERT INTO `pick_list` (`pick_list_id`, `created_at`, `status`, `optimized_route`, `assigned_staff_id`) VALUES
+(3, '2026-05-04 02:17:57', 'Open', NULL, 1),
+(4, '2026-05-04 02:19:56', 'Open', NULL, 1);
+
 -- --------------------------------------------------------
 
 --
@@ -143,6 +173,13 @@ CREATE TABLE `pick_task` (
   `inv_item_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `pick_task`
+--
+
+INSERT INTO `pick_task` (`picktask_id`, `pick_list_id`, `quantity_to_pick`, `status`, `inv_item_id`) VALUES
+(4, 4, 5, 'Picked', 1);
+
 -- --------------------------------------------------------
 
 --
@@ -156,6 +193,55 @@ CREATE TABLE `product` (
   `basePrice` decimal(10,2) NOT NULL,
   `category` varchar(100) DEFAULT NULL,
   `minStockLevel` int(11) DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `product`
+--
+
+INSERT INTO `product` (`product_id`, `SKU`, `name`, `basePrice`, `category`, `minStockLevel`) VALUES
+(1, 'TESTSKU', 'TestProduct', 50.00, NULL, 0),
+(2, 'T1', 'Test', 10.00, NULL, 0);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `purchaseorder`
+--
+
+CREATE TABLE `purchaseorder` (
+  `po_id` int(11) NOT NULL,
+  `status` enum('pending','shipped','delivered','cancelled') DEFAULT 'pending',
+  `total_cost` decimal(10,2) DEFAULT 0.00,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `expected_delivery_date` datetime DEFAULT NULL,
+  `supplier_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `purchase_order_items`
+--
+
+CREATE TABLE `purchase_order_items` (
+  `po_id` int(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `quantity_ordered` int(11) NOT NULL,
+  `unit_price` decimal(10,2) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `shipment`
+--
+
+CREATE TABLE `shipment` (
+  `shipment_id` int(11) NOT NULL,
+  `status` enum('Expected','AtDock','BeingInspected','Stored') DEFAULT 'Expected',
+  `items_received` int(11) DEFAULT 0,
+  `po_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -184,7 +270,8 @@ CREATE TABLE `supplier` (
   `name` varchar(255) NOT NULL,
   `email` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
-  `perf_score` float DEFAULT 0
+  `perf_score` float DEFAULT 0,
+  `user_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -235,6 +322,14 @@ CREATE TABLE `zone` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
+-- Dumping data for table `zone`
+--
+
+INSERT INTO `zone` (`zone_id`, `zone_name`, `max_capacity`) VALUES
+(1, 'TestZone', 100),
+(2, 'Z', 100);
+
+--
 -- Indexes for dumped tables
 --
 
@@ -255,7 +350,8 @@ ALTER TABLE `client`
 -- Indexes for table `floorstaff`
 --
 ALTER TABLE `floorstaff`
-  ADD PRIMARY KEY (`staff_id`);
+  ADD PRIMARY KEY (`staff_id`),
+  ADD UNIQUE KEY `user_id` (`user_id`);
 
 --
 -- Indexes for table `inventory_item`
@@ -302,6 +398,27 @@ ALTER TABLE `product`
   ADD UNIQUE KEY `SKU` (`SKU`);
 
 --
+-- Indexes for table `purchaseorder`
+--
+ALTER TABLE `purchaseorder`
+  ADD PRIMARY KEY (`po_id`),
+  ADD KEY `fk_po_supplier` (`supplier_id`);
+
+--
+-- Indexes for table `purchase_order_items`
+--
+ALTER TABLE `purchase_order_items`
+  ADD PRIMARY KEY (`po_id`,`product_id`),
+  ADD KEY `product_id` (`product_id`);
+
+--
+-- Indexes for table `shipment`
+--
+ALTER TABLE `shipment`
+  ADD PRIMARY KEY (`shipment_id`),
+  ADD KEY `fk_shipment_po` (`po_id`);
+
+--
 -- Indexes for table `shipping_label`
 --
 ALTER TABLE `shipping_label`
@@ -313,7 +430,8 @@ ALTER TABLE `shipping_label`
 --
 ALTER TABLE `supplier`
   ADD PRIMARY KEY (`supplier_id`),
-  ADD UNIQUE KEY `email` (`email`);
+  ADD UNIQUE KEY `email` (`email`),
+  ADD UNIQUE KEY `user_id` (`user_id`);
 
 --
 -- Indexes for table `user`
@@ -343,7 +461,7 @@ ALTER TABLE `zone`
 -- AUTO_INCREMENT for table `bin`
 --
 ALTER TABLE `bin`
-  MODIFY `bin_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `bin_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `client`
@@ -355,13 +473,13 @@ ALTER TABLE `client`
 -- AUTO_INCREMENT for table `floorstaff`
 --
 ALTER TABLE `floorstaff`
-  MODIFY `staff_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `staff_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `inventory_item`
 --
 ALTER TABLE `inventory_item`
-  MODIFY `inv_item_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `inv_item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `order`
@@ -373,19 +491,31 @@ ALTER TABLE `order`
 -- AUTO_INCREMENT for table `pick_list`
 --
 ALTER TABLE `pick_list`
-  MODIFY `pick_list_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `pick_list_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `pick_task`
 --
 ALTER TABLE `pick_task`
-  MODIFY `picktask_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `picktask_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `product`
 --
 ALTER TABLE `product`
-  MODIFY `product_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `product_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `purchaseorder`
+--
+ALTER TABLE `purchaseorder`
+  MODIFY `po_id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `shipment`
+--
+ALTER TABLE `shipment`
+  MODIFY `shipment_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `shipping_label`
@@ -415,7 +545,7 @@ ALTER TABLE `warehouse_manager`
 -- AUTO_INCREMENT for table `zone`
 --
 ALTER TABLE `zone`
-  MODIFY `zone_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `zone_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- Constraints for dumped tables
@@ -426,6 +556,12 @@ ALTER TABLE `zone`
 --
 ALTER TABLE `bin`
   ADD CONSTRAINT `fk_bin_zone` FOREIGN KEY (`zone_id`) REFERENCES `zone` (`zone_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `floorstaff`
+--
+ALTER TABLE `floorstaff`
+  ADD CONSTRAINT `fk_staff_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `inventory_item`
@@ -461,10 +597,35 @@ ALTER TABLE `pick_task`
   ADD CONSTRAINT `fk_task_picklist` FOREIGN KEY (`pick_list_id`) REFERENCES `pick_list` (`pick_list_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
+-- Constraints for table `purchaseorder`
+--
+ALTER TABLE `purchaseorder`
+  ADD CONSTRAINT `fk_po_supplier` FOREIGN KEY (`supplier_id`) REFERENCES `supplier` (`supplier_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `purchase_order_items`
+--
+ALTER TABLE `purchase_order_items`
+  ADD CONSTRAINT `purchase_order_items_ibfk_1` FOREIGN KEY (`po_id`) REFERENCES `purchaseorder` (`po_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `purchase_order_items_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `product` (`product_id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `shipment`
+--
+ALTER TABLE `shipment`
+  ADD CONSTRAINT `fk_shipment_po` FOREIGN KEY (`po_id`) REFERENCES `purchaseorder` (`po_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
 -- Constraints for table `shipping_label`
 --
 ALTER TABLE `shipping_label`
   ADD CONSTRAINT `fk_label_order` FOREIGN KEY (`order_id`) REFERENCES `order` (`order_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `supplier`
+--
+ALTER TABLE `supplier`
+  ADD CONSTRAINT `fk_supplier_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
