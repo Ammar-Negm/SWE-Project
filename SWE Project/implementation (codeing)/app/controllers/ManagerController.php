@@ -145,4 +145,164 @@ class ManagerController extends Controller
         header('Location: index.php?url=Manager/listProducts');
         exit;
     }
+    /* ======================
+        ZONES
+    ====================== */
+
+    public function listZones()
+    {
+        require_once __DIR__ . "/../models/ZoneModel.php";
+        $zoneModel = new ZoneModel();
+        $zones = $zoneModel->getAll();
+        $this->view("manager/zones/index", ['zones' => $zones]);
+    }
+
+//     public function listZones()
+// {
+//     require_once __DIR__ . "/../models/ZoneModel.php";
+//     $zoneModel = new ZoneModel();
+//     $zones = $zoneModel->getAll();
+    
+//     // مؤقتاً بدل الـ view
+//     echo "<pre>";
+//     print_r($zones);
+//     echo "</pre>";
+//     die();
+// }
+// دا كان للتجريب بس ان الفانكشنز شغاله
+
+    public function addZone()
+    {
+        require_once __DIR__ . "/../models/ZoneModel.php";
+        $zoneModel = new ZoneModel();
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $data = [
+                'zone_name'    => trim($_POST['zone_name'] ?? ''),
+                'max_capacity' => (int)($_POST['max_capacity'] ?? 0),
+            ];
+
+            // تحقق بسيط قبل الإدخال
+            if (empty($data['zone_name']) || $data['max_capacity'] <= 0) {
+                $this->view("manager/zones/create", [
+                    'error' => 'Zone name and capacity are required.',
+                    'old'   => $data,
+                ]);
+                return;
+            }
+
+            $zoneModel->insert($data);
+            header('Location: index.php?url=Manager/listZones');
+            exit;
+        }
+
+        $this->view("manager/zones/create");
+    }
+
+    public function editZone($id)
+    {
+        require_once __DIR__ . "/../models/ZoneModel.php";
+        $zoneModel = new ZoneModel();
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $data = [
+                'zone_name'    => trim($_POST['zone_name'] ?? ''),
+                'max_capacity' => (int)($_POST['max_capacity'] ?? 0),
+            ];
+
+            $zoneModel->update($id, $data);
+            header('Location: index.php?url=Manager/listZones');
+            exit;
+        }
+
+        $zone = $zoneModel->getById($id);
+        $this->view("manager/zones/edit", ['zone' => $zone]);
+    }
+
+    public function deleteZone($id)
+    {
+        require_once __DIR__ . "/../models/ZoneModel.php";
+        $zoneModel = new ZoneModel();
+        $zoneModel->delete($id);
+        header('Location: index.php?url=Manager/listZones');
+        exit;
+    }
+
+    /* ======================
+        BINS
+    ====================== */
+
+    public function listBins()
+    {
+        require_once __DIR__ . "/../models/BinModel.php";
+        $binModel = new BinModel();
+        $bins = $binModel->getAll();
+        $this->view("manager/bins/index", ['bins' => $bins]);
+    }
+
+    public function addBin()
+    {
+        require_once __DIR__ . "/../models/BinModel.php";
+        require_once __DIR__ . "/../models/ZoneModel.php";
+        $binModel  = new BinModel();
+        $zoneModel = new ZoneModel();
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $data = [
+                'zone_id'       => (int)($_POST['zone_id'] ?? 0),
+                'maxWeight'     => (float)($_POST['maxWeight'] ?? 0),
+                'shelfLocation' => trim($_POST['shelfLocation'] ?? ''),
+            ];
+
+            if (empty($data['shelfLocation']) || $data['maxWeight'] <= 0) {
+                $zones = $zoneModel->getAll();
+                $this->view("manager/bins/create", [
+                    'error' => 'All fields are required.',
+                    'zones' => $zones,
+                    'old'   => $data,
+                ]);
+                return;
+            }
+
+            $binModel->insert($data);
+            header('Location: index.php?url=Manager/listBins');
+            exit;
+        }
+
+        $zones = $zoneModel->getAll();
+        $this->view("manager/bins/create", ['zones' => $zones]);
+    }
+
+    public function editBin($id)
+    {
+        require_once __DIR__ . "/../models/BinModel.php";
+        require_once __DIR__ . "/../models/ZoneModel.php";
+        $binModel  = new BinModel();
+        $zoneModel = new ZoneModel();
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $data = [
+                'zone_id'       => (int)($_POST['zone_id'] ?? 0),
+                'maxWeight'     => (float)($_POST['maxWeight'] ?? 0),
+                'shelfLocation' => trim($_POST['shelfLocation'] ?? ''),
+            ];
+
+            $binModel->update($id, $data);
+            header('Location: index.php?url=Manager/listBins');
+            exit;
+        }
+
+        $bin   = $binModel->getById($id);
+        $zones = $zoneModel->getAll();
+        $this->view("manager/bins/edit", ['bin' => $bin, 'zones' => $zones]);
+    }
+
+    public function deleteBin($id)
+    {
+        require_once __DIR__ . "/../models/BinModel.php";
+        $binModel = new BinModel();
+        $binModel->delete($id);
+        header('Location: index.php?url=Manager/listBins');
+        exit;
+    }
 }

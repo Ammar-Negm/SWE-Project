@@ -55,4 +55,20 @@ class PickList {
         $stmt->execute([':id' => $pick_list_id]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+    public function getTasksByStaff($staff_id)
+{
+    $sql = "SELECT pl.*, pt.picktask_id, pt.quantity_to_pick, pt.status as task_status,
+                    p.name as product_name, p.SKU
+            FROM pick_list pl
+            JOIN pick_task pt ON pl.pick_list_id = pt.pick_list_id
+            JOIN inventory_item ii ON pt.inv_item_id = ii.inv_item_id
+            JOIN product p ON ii.product_id = p.product_id
+            WHERE pl.assigned_staff_id = :staff_id
+            AND pl.status != 'Completed'
+            ORDER BY pl.created_at DESC";
+
+    $stmt = $this->db->prepare($sql);
+    $stmt->execute([':staff_id' => $staff_id]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 }
