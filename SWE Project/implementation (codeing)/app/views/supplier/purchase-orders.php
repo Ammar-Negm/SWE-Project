@@ -6,17 +6,17 @@
   <title>Purchase Orders - WareLogix</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-  <link rel="stylesheet" href="../style.css">
+ <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/style.css">
 </head>
 <body>
 <div id="wrapper">
   <aside class="sidebar" id="sidebar">
     <div class="brand">⬡ WareLogix</div>
-    <nav class="nav flex-column mt-3">
-      <a class="nav-link" href="dashboard.html"><i class="bi bi-grid-1x2"></i> Dashboard</a>
-      <a class="nav-link active" href="purchase-orders.html"><i class="bi bi-cart3"></i> Purchase Orders</a>
-      <a class="nav-link" href="invoice-manager.html"><i class="bi bi-receipt"></i> Invoice Manager</a>
-    </nav>
+   <nav class="nav flex-column mt-3">
+  <a class="nav-link active" href="<?= BASE_URL ?>index.php?url=Supplier/dashboard"><i class="bi bi-grid-1x2"></i> Dashboard</a>
+  <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Supplier/orders"><i class="bi bi-cart3"></i> Purchase Orders</a>
+  <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Supplier/invoice"><i class="bi bi-receipt"></i> Invoice Manager</a>
+</nav>
     <div class="user-info mt-auto">
       <i class="bi bi-building"></i> Logged in as: <span class="php-dynamic text-info">AlphaParts Ltd.</span>
     </div>

@@ -1,3 +1,8 @@
+<?php
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+session_start();
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,7 +11,9 @@
   <title>Manager Dashboard - WareLogix</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
   <style>
+
     body { font-family: 'Inter', sans-serif; background-color: #F1F5F9; }
     #wrapper { display: flex; width: 100%; height: 100vh; }
     .sidebar { width: 260px; background-color: #1A3C5E; color: #fff; display: flex; flex-direction: column; }
@@ -17,21 +24,35 @@
     .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
     .top-navbar { background: #fff; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.04); }
     .card { background-color: #fff; border: none; border-radius: 10px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 1.5rem; }
+
   </style>
+  
 </head>
 <body>
+    
 <div id="wrapper">
   <aside class="sidebar" id="sidebar">
     <div class="brand">⬡ WareLogix</div>
-    <nav class="nav flex-column mt-3">
+    <!--
+     <nav class="nav flex-column mt-3">
       <a class="nav-link active" href="#"><i class="bi bi-grid-1x2"></i> Dashboard</a>
-      <a class="nav-link" href="#"><i class="bi bi-box-seam"></i> Inventory</a>
+      <a class="nav-link" href="inventory.php"><i class="bi bi-box-seam"></i> Inventory</a>
       <a class="nav-link" href="#"><i class="bi bi-layers"></i> Zonal Optimizer</a>
       <a class="nav-link" href="#"><i class="bi bi-cart3"></i> Procurement</a>
       <a class="nav-link" href="#"><i class="bi bi-truck"></i> Suppliers</a>
       <a class="nav-link" href="#"><i class="bi bi-graph-up"></i> Analytics</a>
       <a class="nav-link" href="#"><i class="bi bi-gear"></i> System Admin</a>
-    </nav>
+    </nav> 
+    -->
+    <nav class="nav flex-column mt-3">
+  <a class="nav-link active" href="<?= BASE_URL ?>index.php?url=Manager/dashboard"><i class="bi bi-grid-1x2"></i> Dashboard</a>
+  <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Manager/inventory"><i class="bi bi-box-seam"></i> Inventory</a>
+  <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Manager/zonaloptimizer"><i class="bi bi-layers"></i> Zonal Optimizer</a>
+  <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Manager/procurement"><i class="bi bi-cart3"></i> Procurement</a>
+  <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Manager/supplier"><i class="bi bi-truck"></i> Suppliers</a>
+  <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Manager/analytics"><i class="bi bi-graph-up"></i> Analytics</a>
+  <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Manager/systemadmin"><i class="bi bi-gear"></i> System Admin</a>
+</nav>
     <div class="user-info mt-auto">
       <i class="bi bi-person-circle"></i> Logged in as:
       <span class="text-warning"><?= $_SESSION['user_name'] ?? 'Manager' ?></span>
@@ -199,3 +220,4 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+

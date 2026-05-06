@@ -39,7 +39,6 @@ class AuthController extends Controller
 
     public function logout()
     {
-        session_start();
         session_destroy();
         header('Location: ' . BASE_URL . 'Auth/login');
         exit;
@@ -74,5 +73,9 @@ class AuthController extends Controller
             break;
     }
     exit;
+}
+public function index()
+{
+    $this->login();
 }
 }
