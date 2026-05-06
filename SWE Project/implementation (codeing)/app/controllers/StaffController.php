@@ -1,4 +1,3 @@
-
 <?php
 
 class StaffController extends Controller
@@ -12,70 +11,36 @@ class StaffController extends Controller
         }
     }
 
-    public function index()
-    {
-        $this->dashboard();
-    }
-
-    public function dashboard()
-    {
-        $this->view("staff/dashboard");
-    }
-
-    public function packing()
-    {
-        $this->view("staff/packing-station");
-    }
-
-    public function picking()
-    {
-        $this->view("staff/pick-list");
-    }
-
-    public function qc()
-    {
-        $this->view("staff/qc-inspection");
-    }
+    public function index()    { $this->dashboard(); }
+    public function dashboard(){ $this->view("staff/dashboard"); }
+    public function packing()  { $this->view("staff/packing-station"); }
+    public function picking()  { $this->view("staff/pick-list"); }
+    public function qc()       { $this->view("staff/qc-inspection"); }
 
     /* ======================
-        TASKS (PickTasks)
+        TASKS
     ====================== */
 
     public function listTasks()
     {
         require_once __DIR__ . "/../models/PickList.php";
         $pickListModel = new PickList();
-
-        // جيب الـ pick lists المعينة للموظف اللي لوج إن
-        $staff_id = $_SESSION['user_id'];
-        $lists    = $pickListModel->getTasksByStaff($staff_id);
-
+        $lists = $pickListModel->getTasksByStaff($_SESSION['user_id']);
         $this->view("staff/pick-list", ['lists' => $lists]);
-    }
-
-    public function createTask()
-    {
-        // الموظف مش بيعمل task بنفسه، المدير بيعملها وبتتعين ليه
-        // لو حاب تضيف حاجة هنا بعدين تعملها
-        header('Location: index.php?url=Staff/listTasks');
-        exit;
     }
 
     public function updateTask($task_id)
     {
         require_once __DIR__ . "/../models/PickTask.php";
+        require_once __DIR__ . "/../models/InventoryItem.php";
         $taskModel = new PickTask();
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $action = $_POST['action'] ?? '';
 
             if ($action === 'complete') {
-                // بيخصم الكمية من المخزون ويغير الحالة لـ Picked
                 $taskModel->completeTask($task_id);
-
             } elseif ($action === 'fail') {
-                $reason = $_POST['reason'] ?? 'Item not found';
-                // بيغير الحالة لـ Failed ويسجل السبب
                 $taskModel->updateStatus($task_id, 'Failed');
             }
         }
@@ -84,9 +49,6 @@ class StaffController extends Controller
         exit;
     }
 }
-
-
-
 
 // class StaffController extends Controller
 // {
