@@ -13,13 +13,14 @@
   <aside class="sidebar" id="sidebar">
     <div class="brand">⬡ WareLogix</div>
      <nav class="nav flex-column mt-3">
-  <a class="nav-link active" href="<?= BASE_URL ?>index.php?url=Manager/dashboard"><i class="bi bi-grid-1x2"></i> Dashboard</a>
+  <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Manager/dashboard"><i class="bi bi-grid-1x2"></i> Dashboard</a>
   <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Manager/inventory"><i class="bi bi-box-seam"></i> Inventory</a>
   <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Manager/zonaloptimizer"><i class="bi bi-layers"></i> Zonal Optimizer</a>
   <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Manager/procurement"><i class="bi bi-cart3"></i> Procurement</a>
   <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Manager/supplier"><i class="bi bi-truck"></i> Suppliers</a>
   <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Manager/analytics"><i class="bi bi-graph-up"></i> Analytics</a>
-  <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Manager/systemadmin"><i class="bi bi-gear"></i> System Admin</a>
+  <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Manager/adduser"><i class="bi bi-person-plus"></i> Add User</a>
+  <a class="nav-link active" href="<?= BASE_URL ?>index.php?url=Manager/systemadmin"><i class="bi bi-gear"></i> System Admin</a>
 </nav>
     <div class="user-info mt-auto">
       <i class="bi bi-person-circle"></i> Logged in as: <span class="php-dynamic text-warning">Manager</span>
@@ -34,13 +35,7 @@
       </div>
       <div class="d-flex align-items-center gap-3">
         <div class="position-relative cursor-pointer">
-          <i class="bi bi-bell fs-5"></i>
-          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">5</span>
-        </div>
-        <div class="dropdown">
-          <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
-            <img src="https://ui-avatars.com/api/?name=Admin&background=1A3C5E&color=fff" class="rounded-circle" width="32">
-          </button>
+          <a href="index.php?url=Auth/logout" class="btn btn-outline-danger btn-sm">Logout</a>
         </div>
       </div>
     </nav>
@@ -62,7 +57,7 @@
                 <tbody>
                   <tr>
                     <td>Manager</td><td>Dashboard, Inventory, Optimizer, Procurement, Admin</td>
-                    <td><button class="btn btn-sm btn-outline-primary">Edit</button></td>
+                    <td><button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editRoleModal">Edit</button></td>
                   </tr>
                 </tbody>
               </table>
@@ -103,6 +98,41 @@
         </div>
       </div>
     </div>
+    <div class="modal fade" id="editRoleModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold">Edit Role Permissions: <span class="text-primary-custom">Manager</span></h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <form method="POST" action="update_role.php">
+          <div class="modal-body">
+            <p class="text-muted small">Select the modules this role can access:</p>
+            <div class="form-check form-switch mb-2">
+              <input class="form-check-input" type="checkbox" id="mod1" checked>
+              <label class="form-check-label" for="mod1">Dashboard & Analytics</label>
+            </div>
+            <div class="form-check form-switch mb-2">
+              <input class="form-check-input" type="checkbox" id="mod2" checked>
+              <label class="form-check-label" for="mod2">Inventory Management</label>
+            </div>
+            <div class="form-check form-switch mb-2">
+              <input class="form-check-input" type="checkbox" id="mod3" checked>
+              <label class="form-check-label" for="mod3">Procurement & POs</label>
+            </div>
+            <div class="form-check form-switch mb-2">
+              <input class="form-check-input" type="checkbox" id="mod4" checked>
+              <label class="form-check-label" for="mod4">System Administration</label>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Update Role</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
   </main>
 </div>
 

@@ -14,12 +14,13 @@
   <aside class="sidebar" id="sidebar">
     <div class="brand">⬡ WareLogix</div>
     <nav class="nav flex-column mt-3">
-  <a class="nav-link active" href="<?= BASE_URL ?>index.php?url=Manager/dashboard"><i class="bi bi-grid-1x2"></i> Dashboard</a>
+  <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Manager/dashboard"><i class="bi bi-grid-1x2"></i> Dashboard</a>
   <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Manager/inventory"><i class="bi bi-box-seam"></i> Inventory</a>
   <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Manager/zonaloptimizer"><i class="bi bi-layers"></i> Zonal Optimizer</a>
   <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Manager/procurement"><i class="bi bi-cart3"></i> Procurement</a>
-  <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Manager/supplier"><i class="bi bi-truck"></i> Suppliers</a>
+  <a class="nav-link active" href="<?= BASE_URL ?>index.php?url=Manager/supplier"><i class="bi bi-truck"></i> Suppliers</a>
   <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Manager/analytics"><i class="bi bi-graph-up"></i> Analytics</a>
+  <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Manager/adduser"><i class="bi bi-person-plus"></i> Add User</a>
   <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Manager/systemadmin"><i class="bi bi-gear"></i> System Admin</a>
 </nav>
     <div class="user-info mt-auto">
@@ -35,13 +36,7 @@
       </div>
       <div class="d-flex align-items-center gap-3">
         <div class="position-relative cursor-pointer">
-          <i class="bi bi-bell fs-5"></i>
-          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">5</span>
-        </div>
-        <div class="dropdown">
-          <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
-            <img src="https://ui-avatars.com/api/?name=Admin&background=1A3C5E&color=fff" class="rounded-circle" width="32">
-          </button>
+          <a href="index.php?url=Auth/logout" class="btn btn-outline-danger btn-sm">Logout</a>
         </div>
       </div>
     </nav>
@@ -53,7 +48,7 @@
         </div>
         <div class="col-md-6 text-end d-flex gap-2 justify-content-md-end mt-3 mt-md-0">
           <input type="text" class="form-control w-auto" placeholder="Search suppliers...">
-          <button class="btn btn-primary"><i class="bi bi-plus-lg"></i> Add Supplier</button>
+          <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addSupplierModal"><i class="bi bi-plus-lg"></i> Add Supplier</button>
         </div>
       </div>
 
@@ -75,12 +70,34 @@
             </div>
             <div class="d-flex gap-2">
               <button class="btn btn-outline-secondary w-50">Profile</button>
-              <button class="btn btn-primary w-50">Raise PO</button>
+              <a href="procurement.html" class="btn btn-primary w-50">Raise PO</a>
             </div>
           </div>
         </div>
         </div>
     </div>
+    <div class="modal fade" id="addSupplierModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold">Add New Supplier</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <form method="POST" action="add_supplier.php">
+          <div class="modal-body">
+            <div class="mb-3"><label class="form-label">Company Name</label><input type="text" class="form-control" name="company_name" required></div>
+            <div class="mb-3"><label class="form-label">Contact Email</label><input type="email" class="form-control" name="email" required></div>
+            <div class="mb-3"><label class="form-label">Phone Number</label><input type="text" class="form-control" name="phone"></div>
+            <div class="mb-3"><label class="form-label">Expected Lead Time (Days)</label><input type="number" class="form-control" name="lead_time" placeholder="e.g., 4"></div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Add Supplier</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
   </main>
 </div>
 
