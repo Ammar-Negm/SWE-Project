@@ -45,4 +45,26 @@ class Shipment {
             ":id" => $shipment_id
         ]);
     }
+
+    // داخل Shipment.php
+public function confirmArrival($shipment_id, $inv_item_id, $qty_received, $supplier_id) {
+    $inventory = new InventoryItem();
+    $item = $inventory->getById($inv_item_id);
+    $newQty = $item['quantity'] + $qty_received;
+
+    // 1. تحديث الكمية في المخزن
+    $inventory->updateQuantity($inv_item_id, $newQty);
+
+    //audit log start
+    $audit = new AuditLog();
+    $audit->record(
+        $inv_item_id, 
+        'SUPPLY', 
+        $qty_received,   // الكمية بالموجب لأنها توريد
+        $supplier_id,    // الـ ID الخاص بالمورد
+        'supplier', 
+        $shipment_id     // المرجع هنا هو رقم الشحنة
+    );
+    //audit log end
+}
 }
