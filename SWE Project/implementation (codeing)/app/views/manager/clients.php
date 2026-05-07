@@ -31,6 +31,7 @@
         <h4 class="mb-0 fw-bold">Client Directory</h4>
       </div>
       <div class="d-flex align-items-center gap-3">
+        <a href="index.php?url=Auth/logout" class="btn btn-outline-danger btn-sm">Logout</a>
         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addClientModal"><i class="bi bi-plus-lg"></i> Add New Client</button>
       </div>
     </nav>

@@ -6,13 +6,13 @@
   <title>Place New Order - WareLogix</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/style.css">
   <style>
-    /* تمييز بوابة العميل بلون مختلف */
     :root { --client-primary: #10B981; }
     .sidebar-client { background-color: #064E3B !important; }
     .btn-client { background-color: var(--client-primary); border-color: var(--client-primary); color: white; }
     .btn-client:hover { background-color: #059669; color: white; }
+    .product-row { transition: all 0.3s ease; }
   </style>
 </head>
 <body>
@@ -20,9 +20,7 @@
   <aside class="sidebar sidebar-client" id="sidebar">
     <div class="brand">⬡ Client Portal</div>
     <nav class="nav flex-column mt-3">
-      <a class="nav-link active" href="create-order.html"><i class="bi bi-cart-plus"></i> New Order</a>
-      <a class="nav-link" href="order-history.html"><i class="bi bi-clock-history"></i> My Orders</a>
-      <a class="nav-link" href="#"><i class="bi bi-person-lines-fill"></i> My Profile</a>
+      <a class="nav-link active" href="<?= BASE_URL ?>Client/createOrder"><i class="bi bi-cart-plus"></i> New Order</a>
     </nav>
     <div class="user-info mt-auto">
       <i class="bi bi-shop"></i> Client: <span class="php-dynamic">Hameed Retail Stores</span>
@@ -35,42 +33,63 @@
         <button class="btn btn-light d-md-none me-3" id="sidebarToggle"><i class="bi bi-list"></i></button>
         <h4 class="mb-0 fw-bold">Create Fulfillment Request</h4>
       </div>
+      <a href="index.php?url=Auth/logout" class="btn btn-outline-danger btn-sm">Logout</a>
     </nav>
+    <div class="container-fluid mt-3">
+    <?php if (isset($_GET['status']) && $_GET['status'] == 'success'): ?>
+        <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-check-circle-fill fs-4 me-2"></i>
+                <div>
+                    <strong>Order Submitted Successfully!</strong><br>
+                    Your request has been sent to the warehouse fulfillment team.
+                </div>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <?php endif; ?>
+</div>
 
     <div class="container-fluid py-4">
       <div class="row justify-content-center">
         <div class="col-lg-10">
           
           <div class="card shadow-sm p-4">
-            <h5 class="fw-bold mb-4">Order Construction</h5>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="fw-bold m-0">Order Construction</h5>
+                <span class="badge bg-light text-dark">Date: <?= date('Y-m-d') ?></span>
+            </div>
             
-            <form method="POST" action="submit_order.php">
-              <input type="hidden" name="client_id" value="101">
+            <form method="POST" action="<?= BASE_URL ?>Client/submitOrder">
+              <input type="hidden" name="client_id" value="<?= $_SESSION['user_id'] ?? '' ?>">
 
               <div id="product-list">
-                <div class="row mb-3 product-row align-items-end">
+                <div class="row mb-3 product-row align-items-end border-bottom pb-3">
                   <div class="col-md-5">
                     <label class="form-label small fw-bold">Select Product</label>
-                    <select class="form-select" name="product_id[]" required>
+                    <select class="form-select product-select" name="product_id[]" required onchange="calculateTotals()">
                       <option value="" selected disabled>Choose item...</option>
-                      <option value="1" data-price="5.00" data-weight="0.5">Electronic Components (SKU-001) - $5.00</option>
-                      <option value="2" data-price="15.00" data-weight="2.0">Chilled Produce (SKU-002) - $15.00</option>
-                      <option value="3" data-price="50.00" data-weight="25.0">Raw Chemicals (SKU-003) - $50.00</option>
+                      <?php if(isset($products) && is_array($products)): foreach($products as $product): ?>
+                          <option value="<?= $product['product_id'] ?>" 
+                                  data-price="<?= $product['basePrice'] ?? 0 ?>" 
+                                  data-weight="1.0"> <?= htmlspecialchars($product['name']) ?> (SKU: <?= $product['SKU'] ?>) - $<?= number_format($product['basePrice'], 2) ?>
+                          </option>
+                      <?php endforeach; endif; ?>
                     </select>
                   </div>
-                  <div class="col-md-3">
+                  <div class="col-md-2">
                     <label class="form-label small fw-bold">Quantity</label>
-                    <input type="number" class="form-control" name="qty[]" min="1" value="1" required>
+                    <input type="number" class="form-control qty-input" name="qty[]" min="1" value="1" required oninput="calculateTotals()">
                   </div>
                   <div class="col-md-3">
                     <label class="form-label small fw-bold">Subtotal</label>
                     <div class="input-group">
                       <span class="input-group-text">$</span>
-                      <input type="text" class="form-control bg-light" readonly value="0.00">
+                      <input type="text" class="form-control bg-light subtotal-display" readonly value="0.00">
                     </div>
                   </div>
                   <div class="col-md-1 text-end">
-                    <button type="button" class="btn btn-outline-danger btn-sm border-0 remove-row"><i class="bi bi-trash"></i></button>
+                    <button type="button" class="btn btn-outline-danger btn-sm border-0 remove-row" onclick="removeRow(this)"><i class="bi bi-trash"></i></button>
                   </div>
                 </div>
               </div>
@@ -122,58 +141,59 @@
 
   // إضافة منتج جديد
   document.getElementById('add-more-products').addEventListener('click', function() {
+    const productList = document.getElementById('product-list');
     const firstRow = document.querySelector('.product-row');
     const newRow = firstRow.cloneNode(true);
+    
     // تفريغ القيم في السطر الجديد
     newRow.querySelector('select').value = "";
-    newRow.querySelector('input[type="number"]').value = 1;
-    newRow.querySelector('input[readonly]').value = "0.00";
-    document.getElementById('product-list').appendChild(newRow);
+    newRow.querySelector('.qty-input').value = 1;
+    newRow.querySelector('.subtotal-display').value = "0.00";
+    
+    productList.appendChild(newRow);
+    calculateTotals();
   });
 
-  // حذف منتج (Event Delegation)
-  document.getElementById('product-list').addEventListener('click', function(e) {
-    if (e.target.closest('.remove-row')) {
-      const rows = document.querySelectorAll('.product-row');
-      if (rows.length > 1) {
-        e.target.closest('.product-row').remove();
+  // حذف سطر
+  function removeRow(btn) {
+    const rows = document.querySelectorAll('.product-row');
+    if (rows.length > 1) {
+        btn.closest('.product-row').remove();
         calculateTotals();
-      }
+    } else {
+        alert("At least one product is required.");
     }
-  });
+  }
 
   // حساب الإجمالي (Logic)
-  document.getElementById('product-list').addEventListener('change', calculateTotals);
-  document.getElementById('product-list').addEventListener('input', calculateTotals);
-
   function calculateTotals() {
     let totalCost = 0;
     let totalWeight = 0;
 
     document.querySelectorAll('.product-row').forEach(row => {
-      const select = row.querySelector('select');
-      const qty = parseInt(row.querySelector('input[type="number"]').value) || 0;
+      const select = row.querySelector('.product-select');
+      const qty = parseInt(row.querySelector('.qty-input').value) || 0;
       const selectedOption = select.options[select.selectedIndex];
       
-      if (selectedOption.value) {
-        const price = parseFloat(selectedOption.dataset.price);
-        const weight = parseFloat(selectedOption.dataset.weight);
+      if (selectedOption && selectedOption.value) {
+        const price = parseFloat(selectedOption.dataset.price) || 0;
+        const weight = parseFloat(selectedOption.dataset.weight) || 0;
         
         const subtotal = price * qty;
-        row.querySelector('input[readonly]').value = subtotal.toFixed(2);
+        row.querySelector('.subtotal-display').value = subtotal.toFixed(2);
         
         totalCost += subtotal;
         totalWeight += (weight * qty);
       }
     });
 
-    // تحديث العرض
+    // تحديث العرض في الكارت الصغير
     document.getElementById('display-cost').textContent = totalCost.toFixed(2);
     document.getElementById('display-weight').textContent = totalWeight.toFixed(1) + " kg";
     
-    // تحديث الحقول المخفية للـ Form
-    document.getElementById('input-total-weight').value = totalWeight;
-    document.getElementById('input-total-cost').value = totalCost;
+    // تحديث الحقول المخفية عشان يتبعتوا للداتابيز
+    document.getElementById('input-total-weight').value = totalWeight.toFixed(2);
+    document.getElementById('input-total-cost').value = totalCost.toFixed(2);
   }
 </script>
 </body>

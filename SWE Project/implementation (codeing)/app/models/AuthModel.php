@@ -15,6 +15,7 @@ class AuthModel
             'manager'  => ['table' => 'warehouse_manager', 'id' => 'manager_id'],
             'staff'    => ['table' => 'floorstaff',        'id' => 'staff_id'],
             'supplier' => ['table' => 'supplier',          'id' => 'supplier_id'],
+            'client'   => ['table' => 'client',            'id' => 'client_id'],
         ];
 
         if (!isset($tableMap[$role])) return null;

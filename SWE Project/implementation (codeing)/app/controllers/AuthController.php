@@ -71,6 +71,9 @@ class AuthController extends Controller
         case 'supplier':
             header('Location: index.php?url=Supplier/dashboard');
             break;
+        case 'client':
+            header('Location: index.php?url=Client/createOrder');
+            break;
     }
     exit;
 }

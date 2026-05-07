@@ -34,17 +34,7 @@
     <button class="btn btn-light d-md-none me-3" id="sidebarToggle"><i class="bi bi-list"></i></button>
     <h4 class="mb-0 fw-bold">User Management</h4>
     </div>
-    <div class="d-flex align-items-center gap-3">
-    <div class="position-relative cursor-pointer">
-        <i class="bi bi-bell fs-5"></i>
-        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">5</span>
-    </div>
-    <div class="dropdown">
-        <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
-        <img src="https://ui-avatars.com/api/?name=Admin&background=1A3C5E&color=fff" class="rounded-circle" width="32">
-        </button>
-    </div>
-    </div>
+    <a href="index.php?url=Auth/logout" class="btn btn-outline-danger btn-sm">Logout</a>
 </nav>
 
 <div class="container-fluid py-4">
