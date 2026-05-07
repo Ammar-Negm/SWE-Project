@@ -1,6 +1,6 @@
 <?php
-require_once "Database.php";
-
+// require_once "Database.php";
+require_once __DIR__ . '/../../core/Database.php';
 class Order
 {
     private $db;

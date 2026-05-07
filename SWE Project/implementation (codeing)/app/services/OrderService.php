@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/../models/Order.php';
 require_once __DIR__ . '/../models/PickList.php';
-require_once __DIR__ . '/../core/Database.php';
+require_once __DIR__ . '/../../core/Database.php';
 
 class OrderService {
 

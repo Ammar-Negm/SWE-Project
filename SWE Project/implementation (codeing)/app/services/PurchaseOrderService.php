@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/../models/PurchaseOrder.php';
 require_once __DIR__ . '/../models/ProductModel.php';
-require_once __DIR__ . '/../core/Database.php';
+require_once __DIR__ . '/../../core/Database.php';
 
 class PurchaseOrderService {
 
@@ -27,11 +27,20 @@ class PurchaseOrderService {
 
         $total = $stmt->fetch()['total'];
 
-        if ($total <= $product['minStockLevel']) {
-            return $this->generatePO(1); // supplier dynamic later
-        }
+        // if ($total <= $product['minStockLevel']) {
+        //     return $this->generatePO(1); // supplier dynamic later
+        // }
 
-        return false;
+        // return false;
+        if (!$product) {
+    return false;
+}
+
+if ($total <= $product['minStockLevel']) {
+    return $this->generatePO(1); // supplier dynamic later
+}
+
+return false;
     }
 
     // Inbound Logistics Gatekeeper

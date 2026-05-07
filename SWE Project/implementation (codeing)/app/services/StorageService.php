@@ -3,7 +3,8 @@
 require_once __DIR__ . '/../models/zone.php';
 require_once __DIR__ . '/../models/bin.php';
 require_once __DIR__ . '/../models/InventoryItem.php';
-require_once __DIR__ . '/../core/Database.php';
+require_once __DIR__ . '/../../core/Database.php';
+
 
 class StorageService {
 
