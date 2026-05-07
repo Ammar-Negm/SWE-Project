@@ -33,6 +33,7 @@
           <option value="manager">Manager</option>
           <option value="staff">Floor Staff</option>
           <option value="supplier">Supplier</option>
+          <option value="client">Client</option>
         </select>
       </div>
       <?php if (!empty($data['error'])): ?>

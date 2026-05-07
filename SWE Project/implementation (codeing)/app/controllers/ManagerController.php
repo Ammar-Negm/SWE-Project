@@ -427,6 +427,74 @@ public function addSupplier()
     }
 
     $this->view("manager/add-user");
-}
+    }
     
+    /* ======================
+        CLIENT MANAGEMENT (Updated for Your Model)
+    ====================== */
+
+    public function clients()
+    {
+        // استدعاء ملف الموديل بتاعك
+        require_once __DIR__ . "/../models/client.php"; 
+        $clientModel = new Client();
+        
+        // استخدام فانكشن getAll اللي في الموديل بتاعك
+        $clients = $clientModel->getAll();
+        
+        $this->view("manager/clients", ['clients' => $clients]);
+    }
+
+    public function addClient()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            require_once __DIR__ . "/../models/client.php";
+            $clientModel = new Client();
+
+            // استلام البيانات من الفورم (تأكد أن أسماء الـ inputs في الـ HTML مطابقة)
+            $name = trim($_POST['name'] ?? '');
+            $address = trim($_POST['shipping_address'] ?? '');
+            $type = trim($_POST['client_type'] ?? 'Regular'); // قيمة افتراضية مثلاً
+
+            if (!empty($name) && !empty($address)) {
+                // استخدام فانكشن create اللي في الموديل بتاعك
+                $clientModel->create($name, $address, $type);
+                header('Location: index.php?url=Manager/clients');
+                exit;
+            } else {
+                $clients = $clientModel->getAll();
+                $this->view("manager/clients", [
+                    'clients' => $clients,
+                    'error'   => "Name and Shipping Address are required!"
+                ]);
+            }
+        }
+    }
+
+    public function deleteClient($id)
+    {
+        require_once __DIR__ . "/../models/client.php";
+        $clientModel = new Client();
+        
+        // استخدام فانكشن delete اللي في الموديل بتاعك
+        $clientModel->delete($id);
+        header('Location: index.php?url=Manager/clients');
+        exit;
+    }
+
+    // فانكشن إضافية لو حبيت تعرض تاريخ أوردرات عميل معين
+    public function clientHistory($id)
+    {
+        require_once __DIR__ . "/../models/client.php";
+        $clientModel = new Client();
+        
+        $client = $clientModel->getById($id);
+        $orders = $clientModel->getOrders($id); // الفانكشن دي موجودة في موديلك وجاهزة
+        
+        $this->view("manager/client-history", [
+            'client' => $client,
+            'orders' => $orders
+        ]);
+    }
 }
+
