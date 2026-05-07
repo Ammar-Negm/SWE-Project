@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 04, 2026 at 07:11 PM
+-- Generation Time: May 08, 2026 at 12:17 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -88,7 +88,35 @@ INSERT INTO `floorstaff` (`staff_id`, `name`, `email`, `password`, `shift_start`
 (9, 'staff', 's@s.com', '123', '08:00:00', '16:00:00', 90, NULL),
 (10, 'Ahmed', 'ahmed@test.com', '$2y$10$5FF5ZRva1AXA/twIKUVU1.gmijcRHJaSQV/2LqdMkGIh.MqYALZHS', '08:00:00', '16:00:00', 90, NULL),
 (11, 'Ahmed', 'ahmed@test.com', '$2y$10$Sr1k/dIU1SN9/NxQFtsIW.OO8Nz.S3qeMwDhzW/SbjWVvswyRQNTW', '08:00:00', '16:00:00', 90, NULL),
-(12, 'Ahmed', 'ahmed@test.com', '$2y$10$uxNVbeDrkv18Y7hOfvARC.fZkDv/BpuOqTjk9OtzpZZ8v2ouuy0a6', '08:00:00', '16:00:00', 90, NULL);
+(12, 'Ahmed', 'ahmed@test.com', '$2y$10$uxNVbeDrkv18Y7hOfvARC.fZkDv/BpuOqTjk9OtzpZZ8v2ouuy0a6', '08:00:00', '16:00:00', 90, NULL),
+(13, 'Ahmed', 'ahmed@test.com', '$2y$10$/weRvqE/Wk93fPMfoZ2fsu4i9iqPnDPMO8alQOKgIzu2DeZdigMdu', '08:00:00', '16:00:00', 90, NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `inventory_audit_log`
+--
+
+CREATE TABLE `inventory_audit_log` (
+  `log_id` int(11) NOT NULL,
+  `inv_item_id` int(11) NOT NULL,
+  `action_type` enum('SUPPLY','PICKING') NOT NULL,
+  `change_amount` int(11) NOT NULL,
+  `performer_id` int(11) NOT NULL,
+  `performer_role` enum('supplier','staff') NOT NULL,
+  `reference_id` int(11) NOT NULL,
+  `quantity_before` int(11) NOT NULL,
+  `quantity_after` int(11) NOT NULL,
+  `created_at` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `inventory_audit_log`
+--
+
+INSERT INTO `inventory_audit_log` (`log_id`, `inv_item_id`, `action_type`, `change_amount`, `performer_id`, `performer_role`, `reference_id`, `quantity_before`, `quantity_after`, `created_at`) VALUES
+(1, 1, 'SUPPLY', 50, 1, 'supplier', 101, 135, 185, '2026-05-07 19:27:35'),
+(2, 1, 'PICKING', -10, 1, 'staff', 501, 125, 115, '2026-05-07 19:27:35');
 
 -- --------------------------------------------------------
 
@@ -109,9 +137,10 @@ CREATE TABLE `inventory_item` (
 --
 
 INSERT INTO `inventory_item` (`inv_item_id`, `product_id`, `bin_id`, `quantity`, `status`) VALUES
-(1, 1, 1, 90, 'Available'),
+(1, 1, 1, 125, 'Available'),
 (5, 1, 1, 100, 'Available'),
-(6, 1, 1, 100, 'Available');
+(6, 1, 1, 100, 'Available'),
+(7, 1, 1, 100, 'Available');
 
 -- --------------------------------------------------------
 
@@ -160,7 +189,8 @@ CREATE TABLE `pick_list` (
 INSERT INTO `pick_list` (`pick_list_id`, `created_at`, `status`, `optimized_route`, `assigned_staff_id`) VALUES
 (3, '2026-05-04 02:17:57', 'Open', NULL, 1),
 (4, '2026-05-04 02:19:56', 'Open', NULL, 1),
-(5, '2026-05-04 19:02:06', 'Open', NULL, 1);
+(5, '2026-05-04 19:02:06', 'Open', NULL, 1),
+(6, '2026-05-06 11:48:31', 'Open', NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -182,7 +212,8 @@ CREATE TABLE `pick_task` (
 
 INSERT INTO `pick_task` (`picktask_id`, `pick_list_id`, `quantity_to_pick`, `status`, `inv_item_id`) VALUES
 (4, 4, 5, 'Picked', 1),
-(5, 5, 5, 'Picked', 1);
+(5, 5, 5, 'Picked', 1),
+(6, 6, 5, 'Picked', 1);
 
 -- --------------------------------------------------------
 
@@ -261,6 +292,20 @@ CREATE TABLE `shipping_label` (
   `generated_at` datetime DEFAULT current_timestamp(),
   `tracking_number` varchar(100) DEFAULT NULL,
   `order_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `staff_shift_record`
+--
+
+CREATE TABLE `staff_shift_record` (
+  `shift_id` int(11) NOT NULL,
+  `staff_id` int(11) NOT NULL,
+  `login_time` datetime NOT NULL DEFAULT current_timestamp(),
+  `logout_time` datetime DEFAULT NULL,
+  `hours_worked` float DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -358,6 +403,13 @@ ALTER TABLE `floorstaff`
   ADD UNIQUE KEY `user_id` (`user_id`);
 
 --
+-- Indexes for table `inventory_audit_log`
+--
+ALTER TABLE `inventory_audit_log`
+  ADD PRIMARY KEY (`log_id`),
+  ADD KEY `fk_audit_item_ref` (`inv_item_id`);
+
+--
 -- Indexes for table `inventory_item`
 --
 ALTER TABLE `inventory_item`
@@ -430,6 +482,13 @@ ALTER TABLE `shipping_label`
   ADD KEY `fk_label_order` (`order_id`);
 
 --
+-- Indexes for table `staff_shift_record`
+--
+ALTER TABLE `staff_shift_record`
+  ADD PRIMARY KEY (`shift_id`),
+  ADD KEY `staff_id` (`staff_id`);
+
+--
 -- Indexes for table `supplier`
 --
 ALTER TABLE `supplier`
@@ -477,13 +536,19 @@ ALTER TABLE `client`
 -- AUTO_INCREMENT for table `floorstaff`
 --
 ALTER TABLE `floorstaff`
-  MODIFY `staff_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `staff_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+
+--
+-- AUTO_INCREMENT for table `inventory_audit_log`
+--
+ALTER TABLE `inventory_audit_log`
+  MODIFY `log_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `inventory_item`
 --
 ALTER TABLE `inventory_item`
-  MODIFY `inv_item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `inv_item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `order`
@@ -495,13 +560,13 @@ ALTER TABLE `order`
 -- AUTO_INCREMENT for table `pick_list`
 --
 ALTER TABLE `pick_list`
-  MODIFY `pick_list_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `pick_list_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `pick_task`
 --
 ALTER TABLE `pick_task`
-  MODIFY `picktask_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `picktask_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `product`
@@ -519,13 +584,19 @@ ALTER TABLE `purchaseorder`
 -- AUTO_INCREMENT for table `shipment`
 --
 ALTER TABLE `shipment`
-  MODIFY `shipment_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `shipment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `shipping_label`
 --
 ALTER TABLE `shipping_label`
   MODIFY `label_id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `staff_shift_record`
+--
+ALTER TABLE `staff_shift_record`
+  MODIFY `shift_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `supplier`
@@ -566,6 +637,12 @@ ALTER TABLE `bin`
 --
 ALTER TABLE `floorstaff`
   ADD CONSTRAINT `fk_staff_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `inventory_audit_log`
+--
+ALTER TABLE `inventory_audit_log`
+  ADD CONSTRAINT `fk_audit_item_ref` FOREIGN KEY (`inv_item_id`) REFERENCES `inventory_item` (`inv_item_id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `inventory_item`
@@ -624,6 +701,12 @@ ALTER TABLE `shipment`
 --
 ALTER TABLE `shipping_label`
   ADD CONSTRAINT `fk_label_order` FOREIGN KEY (`order_id`) REFERENCES `order` (`order_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `staff_shift_record`
+--
+ALTER TABLE `staff_shift_record`
+  ADD CONSTRAINT `staff_shift_record_ibfk_1` FOREIGN KEY (`staff_id`) REFERENCES `floorstaff` (`staff_id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `supplier`
