@@ -8,7 +8,7 @@ class Supplier extends User {
         return $stmt->execute([
             ":name" => $this->name,
             ":email" => $this->email,
-            ":password" => password_hash($this->password, PASSWORD_DEFAULT),
+            ":password" => $this->password,
             ":perf_score" => $perf_score
         ]);
     }

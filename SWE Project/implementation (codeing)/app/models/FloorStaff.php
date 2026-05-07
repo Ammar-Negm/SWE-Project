@@ -11,7 +11,7 @@ class FloorStaff extends User
         return $stmt->execute([
             ":name" => $this->name,
             ":email" => $this->email,
-            ":password" => password_hash($this->password, PASSWORD_DEFAULT),
+            ":password" => $this->password,
             ":shift_start" => $shift_start,
             ":shift_end" => $shift_end,
             ":productivity_score" => $productivity_score

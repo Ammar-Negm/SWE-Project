@@ -4,7 +4,7 @@ class StaffController extends Controller
 {
     public function __construct()
     {
-        session_start();
+
         if (!isset($_SESSION['role']) || strtolower($_SESSION['role']) !== 'staff') {
             header('Location: index.php?url=Auth/login');
             exit;

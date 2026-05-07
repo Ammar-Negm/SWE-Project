@@ -4,7 +4,6 @@ class SupplierController extends Controller
 {
     public function __construct()
     {
-        session_start();
         if (!isset($_SESSION['role']) || strtolower($_SESSION['role']) !== 'supplier') {
             header('Location: index.php?url=Auth/login');
             exit;
@@ -68,43 +67,43 @@ class SupplierController extends Controller
         عشان SupplierController هو اللي فيه الـ Supplier model)
     ====================== */
 
-    public function addSupplier()
-    {
-        require_once __DIR__ . "/../models/Supplier.php";
+    // public function addSupplier()
+    // {
+    //     require_once __DIR__ . "/../models/Supplier.php";
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $s = new Supplier(
-                trim($_POST['name']     ?? ''),
-                trim($_POST['email']    ?? ''),
-                trim($_POST['password'] ?? '')
-            );
-            $s->create($_POST['perf_score'] ?? 0);
-            header('Location: index.php?url=Manager/listSuppliers');
-            exit;
-        }
+    //     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    //         $s = new Supplier(
+    //             trim($_POST['name']     ?? ''),
+    //             trim($_POST['email']    ?? ''),
+    //             trim($_POST['password'] ?? '')
+    //         );
+    //         $s->create($_POST['perf_score'] ?? 0);
+    //         header('Location: index.php?url=Manager/listSuppliers');
+    //         exit;
+    //     }
 
-        $this->view("manager/suppliers/create");
-    }
+    //     $this->view("manager/suppliers/create");
+    // }
 
-    public function editSupplier($id)
-    {
-        require_once __DIR__ . "/../models/Supplier.php";
+    // public function editSupplier($id)
+    // {
+    //     require_once __DIR__ . "/../models/Supplier.php";
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $s = new Supplier(
-                trim($_POST['name']     ?? ''),
-                trim($_POST['email']    ?? ''),
-                trim($_POST['password'] ?? '')
-            );
-            $s->update($id, $_POST['perf_score'] ?? null);
-            header('Location: index.php?url=Manager/listSuppliers');
-            exit;
-        }
+    //     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    //         $s = new Supplier(
+    //             trim($_POST['name']     ?? ''),
+    //             trim($_POST['email']    ?? ''),
+    //             trim($_POST['password'] ?? '')
+    //         );
+    //         $s->update($id, $_POST['perf_score'] ?? null);
+    //         header('Location: index.php?url=Manager/listSuppliers');
+    //         exit;
+    //     }
 
-        $s        = new Supplier();
-        $supplier = $s->getById($id);
-        $this->view("manager/suppliers/edit", ['supplier' => $supplier]);
-    }
+    //     $s        = new Supplier();
+    //     $supplier = $s->getById($id);
+    //     $this->view("manager/suppliers/edit", ['supplier' => $supplier]);
+    // }
 }
 
 // class SupplierController extends Controller

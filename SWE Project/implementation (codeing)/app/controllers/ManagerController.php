@@ -40,10 +40,11 @@ class ManagerController extends Controller
         $this->view("manager/dashboard");
     }
 
-    public function inventory()
-    {
-        $this->view("manager/inventory");
-    }
+   public function inventory()
+{
+    $products = $this->productModel->getAll();
+    $this->view("manager/inventory", ['products' => $products]);
+}
 
     public function procurement()
     {
@@ -69,6 +70,10 @@ class ManagerController extends Controller
     {
         $users = $this->adminModel->getAllUsers();
         $this->view("manager/system-admin", ['users' => $users]);
+    }
+    public function adduser()
+    {
+        $this->view("manager/add-user");
     }
 
     /* ======================
@@ -112,50 +117,73 @@ class ManagerController extends Controller
     }
 
     public function addProduct()
-    {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
+{
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        try {
             $this->productModel->insert([
-                'sku'      => $_POST['sku'] ?? '',
-                'name'     => $_POST['name'] ?? '',
-                'price'    => $_POST['price'] ?? 0,
+                'sku'      => $_POST['sku']      ?? '',
+                'name'     => $_POST['name']     ?? '',
+                'price'    => $_POST['price']    ?? 0,
                 'category' => $_POST['category'] ?? '',
                 'minStock' => $_POST['minStock'] ?? 0,
             ]);
 
-            header('Location: index.php?url=Manager/listProducts');
+            header('Location: index.php?url=Manager/inventory'); // ✅ غيّر
             exit;
-        }
 
-        $this->view("manager/products/create");
+        } catch (PDOException $e) {
+            if ($e->getCode() == 23000) {
+                $products = $this->productModel->getAll(); // ✅ أضف
+                $this->view("manager/inventory", [
+                    'products' => $products,
+                    'error'    => "❌ SKU already exists"
+                ]);
+                return;
+            }
+            throw $e;
+        }
     }
 
-    public function editProduct($id)
-    {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-            $this->productModel->update($id, [
-                'sku'      => $_POST['sku'] ?? '',
-                'name'     => $_POST['name'] ?? '',
-                'price'    => $_POST['price'] ?? 0,
-                'category' => $_POST['category'] ?? '',
-                'minStock' => $_POST['minStock'] ?? 0,
-            ]);
-
-            header('Location: index.php?url=Manager/listProducts');
-            exit;
-        }
-
-        $product = $this->productModel->getById($id);
-        $this->view("manager/products/edit", ['product' => $product]);
+    $this->inventory(); // ✅ بدل view مباشرة
+}
+  public function editProduct($id = null)
+{
+    if (!$id) {
+        $products = $this->productModel->getAll();
+        $this->view("manager/inventory", [
+            'products' => $products,
+            'error'    => "Product ID is required."
+        ]);
+        return;
     }
 
-    public function deleteProduct($id)
-    {
-        $this->productModel->delete($id);
-        header('Location: index.php?url=Manager/listProducts');
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $this->productModel->update($id, [
+            'sku'      => $_POST['sku']      ?? '',
+            'name'     => $_POST['name']     ?? '',
+            'price'    => $_POST['price']    ?? 0,
+            'category' => $_POST['category'] ?? '',
+            'minStock' => $_POST['minStock'] ?? 0,
+        ]);
+
+        header('Location: index.php?url=Manager/inventory');
         exit;
     }
+
+    $products = $this->productModel->getAll();
+    $product  = $this->productModel->getById($id);
+    $this->view("manager/inventory", [
+        'products' => $products,
+        'product'  => $product
+    ]);
+}
+
+public function deleteProduct($id)
+{
+    $this->productModel->delete($id);
+    header('Location: index.php?url=Manager/inventory'); // غيّر listProducts لـ inventory
+    exit;
+}
 
 
     /* ======================
@@ -294,4 +322,71 @@ public function deleteBin($id)
     header('Location: index.php?url=Manager/listBins');
     exit;
 }
+public function addSupplier()
+    {
+        require_once __DIR__ . "/../models/Supplier.php";
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $s = new Supplier(
+                trim($_POST['name']     ?? ''),
+                trim($_POST['email']    ?? ''),
+                trim($_POST['password'] ?? '')
+            );
+            $s->create($_POST['perf_score'] ?? 0);
+            header('Location: index.php?url=Manager/listSuppliers');
+            exit;
+        }
+
+        $this->view("manager/suppliers/create");
+    }
+
+    public function editSupplier($id)
+    {
+        require_once __DIR__ . "/../models/Supplier.php";
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $s = new Supplier(
+                trim($_POST['name']     ?? ''),
+                trim($_POST['email']    ?? ''),
+                trim($_POST['password'] ?? '')
+            );
+            $s->update($id, $_POST['perf_score'] ?? null);
+            header('Location: index.php?url=Manager/listSuppliers');
+            exit;
+        }
+
+        $s        = new Supplier();
+        $supplier = $s->getById($id);
+        $this->view("manager/suppliers/edit", ['supplier' => $supplier]);
+    }
+    public function add_user()
+{
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $role     = $_POST['role'] ?? '';
+        $name     = trim($_POST['name'] ?? '');
+        $email    = trim($_POST['email'] ?? '');
+        $password = $_POST['password'] ?? '';
+        $phone    = trim($_POST['phone'] ?? '');
+
+        if ($role === 'staff') {
+            require_once __DIR__ . "/../models/FloorStaff.php";
+            $u = new FloorStaff($name, $email, $password);
+            $u->create(
+                $_POST['shift_start'] ?? '08:00:00',
+                $_POST['shift_end']   ?? '16:00:00',
+                0
+            );
+        } elseif ($role === 'supplier') {
+            require_once __DIR__ . "/../models/Supplier.php";
+            $s = new Supplier($name, $email, $password);
+            $s->create(100);
+        }
+
+        header('Location: index.php?url=Manager/systemAdmin');
+        exit;
+    }
+
+    $this->view("manager/add-user");
+}
+    
 }

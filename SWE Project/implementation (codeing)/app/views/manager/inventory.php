@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
  <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/style.css">
 </head>
+
 <body>
 <div id="wrapper">
   <aside class="sidebar" id="sidebar">
@@ -75,35 +76,40 @@
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td><span class="php-dynamic">SKU-001</span></td>
-                <td><span class="php-dynamic">Electronic Components</span></td>
-                <td><span class="php-dynamic">A-12</span></td>
-                <td><span class="php-dynamic">1,200</span></td>
-                <td><span class="php-dynamic">150</span></td>
-                <td><span class="php-dynamic">0.5 kg</span></td>
-                <td><span class="badge bg-success">In Stock</span></td>
-                <td>
-                  <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#viewItemModal"><i class="bi bi-eye"></i></button>
-                  <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editItemModal"><i class="bi bi-pencil"></i></button>
-                  <button class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#depalletizeModal">De-palletize</button>
-                </td>
-              </tr>
-              <tr>
-                <td><span class="php-dynamic">SKU-002</span></td>
-                <td><span class="php-dynamic">Chilled Produce</span></td>
-                <td><span class="php-dynamic">C-04</span></td>
-                <td><span class="php-dynamic">85</span></td>
-                <td><span class="php-dynamic">20</span></td>
-                <td><span class="php-dynamic">2.0 kg</span></td>
-                <td><span class="badge bg-warning text-dark">Low Stock</span></td>
-                <td>
-                  <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#viewItemModal"><i class="bi bi-eye"></i></button>
-                  <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editItemModal"><i class="bi bi-pencil"></i></button>
-                  <button class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#depalletizeModal">De-palletize</button>
-                </td>
-              </tr>
-              </tbody>
+  <?php if (!empty($products)): ?>
+    <?php foreach ($products as $p): ?>
+    <tr>
+      <td><?= htmlspecialchars($p['SKU']) ?></td>
+      <td><?= htmlspecialchars($p['name']) ?></td>
+      <td><?= htmlspecialchars($p['category'] ?? '—') ?></td>
+      <td><?= htmlspecialchars($p['minStockLevel'] ?? '—') ?></td>
+      <td>—</td>
+      <td><?= htmlspecialchars($p['basePrice'] ?? '—') ?></td>
+      <td>
+        <?php if (($p['minStockLevel'] ?? 0) > 0): ?>
+          <span class="badge bg-success">In Stock</span>
+        <?php else: ?>
+          <span class="badge bg-warning text-dark">Low Stock</span>
+        <?php endif; ?>
+      </td>
+      <td>
+        <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-eye"></i></button>
+        <button class="btn btn-sm btn-outline-primary"
+          onclick="openEdit(<?= $p['product_id'] ?>, '<?= htmlspecialchars($p['SKU']) ?>', '<?= htmlspecialchars($p['name']) ?>', '<?= $p['basePrice'] ?>', '<?= htmlspecialchars($p['category'] ?? '') ?>', '<?= $p['minStockLevel'] ?>')">
+          <i class="bi bi-pencil"></i>
+        </button>
+        <a href="<?= BASE_URL ?>index.php?url=Manager/deleteProduct/<?= $p['product_id'] ?>"
+           class="btn btn-sm btn-outline-danger"
+           onclick="return confirm('Delete?')"><i class="bi bi-trash"></i></a>
+      </td>
+    </tr>
+    <?php endforeach; ?>
+  <?php else: ?>
+    <tr>
+      <td colspan="8" class="text-center text-muted py-4">No products found.</td>
+    </tr>
+  <?php endif; ?>
+</tbody>
           </table>
         </div>
       </div>
@@ -138,77 +144,93 @@
           </div>
         </div>
       </div>
-    </div>
+
+    </div><!-- end container-fluid -->
+
     <div class="modal fade" id="addItemModal" tabindex="-1">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title fw-bold">Add New Inventory Item</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <form method="POST" action="add_item.php">
-          <div class="modal-body">
-            <div class="mb-3"><label class="form-label">SKU</label><input type="text" class="form-control" name="sku" required placeholder="e.g., SKU-1234"></div>
-            <div class="mb-3"><label class="form-label">Product Name</label><input type="text" class="form-control" name="product_name" required></div>
-            <div class="row mb-3">
-              <div class="col-6"><label class="form-label">Zone/Bin</label><input type="text" class="form-control" name="zone"></div>
-              <div class="col-6"><label class="form-label">Initial Qty</label><input type="number" class="form-control" name="qty"></div>
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title fw-bold">Add New Inventory Item</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <form method="POST" action="<?= BASE_URL ?>index.php?url=Manager/addProduct">
+            <div class="modal-body">
+              <div class="mb-3"><label class="form-label">SKU</label><input type="text" class="form-control" name="sku" required placeholder="e.g., SKU-1234"></div>
+              <div class="mb-3"><label class="form-label">Product Name</label><input type="text" class="form-control" name="name" required></div>
+              <div class="row mb-3">
+                <div class="col-6"><label class="form-label">Zone/Bin</label><input type="text" class="form-control" name="category"></div>
+                <div class="col-6"><label class="form-label">Price</label><input type="number" class="form-control" name="price"></div>
+              </div>
+              <div class="mb-3"><label class="form-label">Minimum Stock</label><input type="number" step="0.01" class="form-control" name="minStock"></div>
             </div>
-            <div class="mb-3"><label class="form-label">Unit Weight (kg)</label><input type="number" step="0.01" class="form-control" name="weight"></div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-            <button type="submit" class="btn btn-primary">Save Item</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal fade" id="viewItemModal" tabindex="-1">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header bg-light">
-          <h5 class="modal-title fw-bold">Item Details: <span class="text-primary-custom">SKU-001</span></h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <p><strong>Name:</strong> Electronic Components</p>
-          <p><strong>Location:</strong> Zone A-12</p>
-          <p><strong>Available Qty:</strong> 1,200</p>
-          <p><strong>Reserved Qty:</strong> 150</p>
-          <p><strong>Weight:</strong> 0.5 kg</p>
-          <p><strong>Status:</strong> <span class="badge bg-success">In Stock</span></p>
-          <hr>
-          <small class="text-muted">Last received: 12 Oct 2025 | Supplier: AlphaParts Ltd.</small>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-primary">Save Item</button>
+            </div>
+          </form>
+          <?php if (!empty($error)): ?>
+            <div class="alert alert-danger"><?= $error ?></div>
+          <?php endif; ?>
         </div>
       </div>
     </div>
-  </div>
 
-  <div class="modal fade" id="editItemModal" tabindex="-1">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title fw-bold">Edit Item (SKU-001)</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <form method="POST" action="edit_item.php">
+    <div class="modal fade" id="viewItemModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header bg-light">
+            <h5 class="modal-title fw-bold">Item Details</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
           <div class="modal-body">
-            <div class="mb-3"><label class="form-label">Product Name</label><input type="text" class="form-control" name="product_name" value="Electronic Components"></div>
-            <div class="mb-3"><label class="form-label">Zone/Bin</label><input type="text" class="form-control" name="zone" value="A-12"></div>
+            <p><strong>Name:</strong> Electronic Components</p>
+            <p><strong>Location:</strong> Zone A-12</p>
+            <p><strong>Available Qty:</strong> 1,200</p>
+            <p><strong>Reserved Qty:</strong> 150</p>
+            <p><strong>Weight:</strong> 0.5 kg</p>
+            <p><strong>Status:</strong> <span class="badge bg-success">In Stock</span></p>
+            <hr>
+            <small class="text-muted">Last received: 12 Oct 2025 | Supplier: AlphaParts Ltd.</small>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
           </div>
-        </form>
+        </div>
       </div>
     </div>
-  </div>
+
+    <div class="modal fade" id="editItemModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title fw-bold">Edit Item</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <form method="POST" id="editForm" action="">
+            <div class="modal-body">
+              <div class="mb-3"><label class="form-label">SKU</label>
+                <input type="text" class="form-control" name="sku" id="edit_sku" required></div>
+              <div class="mb-3"><label class="form-label">Product Name</label>
+                <input type="text" class="form-control" name="name" id="edit_name" required></div>
+              <div class="row mb-3">
+                <div class="col-6"><label class="form-label">Zone/Bin</label>
+                  <input type="text" class="form-control" name="category" id="edit_category"></div>
+                <div class="col-6"><label class="form-label">Price</label>
+                  <input type="number" class="form-control" name="price" id="edit_price"></div>
+              </div>
+              <div class="mb-3"><label class="form-label">Minimum Stock</label>
+                <input type="number" class="form-control" name="minStock" id="edit_minStock"></div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
   </main>
 </div>
 
@@ -217,6 +239,17 @@
   document.getElementById('sidebarToggle').addEventListener('click', function() {
     document.getElementById('sidebar').classList.toggle('show');
   });
+
+  function openEdit(id, sku, name, price, category, minStock) {
+    document.getElementById('edit_sku').value      = sku;
+    document.getElementById('edit_name').value     = name;
+    document.getElementById('edit_price').value    = price;
+    document.getElementById('edit_category').value = category;
+    document.getElementById('edit_minStock').value = minStock;
+    document.getElementById('editForm').action     =
+      '<?= BASE_URL ?>index.php?url=Manager/editProduct/' + id;
+    new bootstrap.Modal(document.getElementById('editItemModal')).show();
+  }
 </script>
 </body>
 </html>

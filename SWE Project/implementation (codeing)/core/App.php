@@ -1,8 +1,10 @@
 <?php
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
+
 require_once __DIR__ . '/Database.php';
 require_once __DIR__ . '/Controller.php';
+
 class App
 {
     protected $controller = 'AuthController';
@@ -11,7 +13,6 @@ class App
 
     public function __construct()
     {
-    
         $url = $this->parseUrl();
 
         // ======================
@@ -30,35 +31,28 @@ class App
 
         $controllerPath = "../app/controllers/{$this->controller}.php";
 
-if (!file_exists($controllerPath)) {
-    die("Controller not found: " . $controllerPath);
-}
+        if (!file_exists($controllerPath)) {
+            die("Controller not found: " . $controllerPath);
+        }
 
-require_once $controllerPath;
+        require_once $controllerPath;
 
-if (!class_exists($this->controller)) {
-    die("Controller class not found: " . $this->controller);
-}
+        if (!class_exists($this->controller)) {
+            die("Controller class not found: " . $this->controller);
+        }
 
-$this->controller = new $this->controller;
+        $this->controller = new $this->controller;
 
         // ======================
         // METHOD
         // ======================
-        // if (isset($url[1]) && $url[1] != '') {
-        //     if (method_exists($this->controller, $url[1])) {
-        //         $this->method = $url[1];
-        //         unset($url[1]);
-        //     }
-        // }
-        $this->method = 'index';
+        if (isset($url[1]) && !empty($url[1])) {
 
-if (isset($url[1]) && !empty($url[1])) {
-    if (method_exists($this->controller, $url[1])) {
-        $this->method = $url[1];
-        unset($url[1]);
-    }
-}
+            if (method_exists($this->controller, $url[1])) {
+                $this->method = $url[1];
+                unset($url[1]);
+            }
+        }
 
         // ======================
         // PARAMETERS

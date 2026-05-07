@@ -19,7 +19,7 @@
     <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Manager/procurement"><i class="bi bi-cart3"></i> Procurement</a>
     <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Manager/supplier"><i class="bi bi-truck"></i> Suppliers</a>
     <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Manager/analytics"><i class="bi bi-graph-up"></i> Analytics</a>
-    <a class="nav-link active" href="<?= BASE_URL ?>index.php?url=Manager/adduser"><i class="bi bi-person-plus"></i> Add User</a>
+    <a class="nav-link active" href="<?= BASE_URL ?>index.php?url=Manager/add-user"><i class="bi bi-person-plus"></i> Add User</a>
     <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Manager/systemadmin"><i class="bi bi-gear"></i> System Admin</a>
 </nav>
 <div class="user-info mt-auto">
@@ -56,13 +56,13 @@
         </div>
 
         <div class="card p-4 shadow-sm">
-        <form method="POST" action="process_add_user.php">
+        <form method="POST" action="<?= BASE_URL ?>index.php?url=Manager/add_user">
             
             <h6 class="fw-bold text-primary-custom border-bottom pb-2 mb-3">1. Personal Information</h6>
             <div class="row mb-3">
             <div class="col-md-6">
                 <label class="form-label">Full Name</label>
-                <input type="text" class="form-control" name="full_name" required placeholder="e.g., Ahmed Ali">
+                <input type="text" class="form-control" name="name" required placeholder="e.g., Ahmed Ali">
             </div>
             <div class="col-md-6">
                 <label class="form-label">Email Address</label>
@@ -96,11 +96,11 @@
             <div class="row">
                 <div class="col-md-6">
                 <label class="form-label">Assigned Shift</label>
-                <select class="form-select" name="shift">
-                    <option value="morning">Morning (08:00 AM - 04:00 PM)</option>
-                    <option value="evening">Evening (04:00 PM - 12:00 AM)</option>
-                    <option value="night">Night (12:00 AM - 08:00 AM)</option>
-                </select>
+                <select class="form-select" name="shift_start">
+    <option value="08:00:00">Morning (08:00 AM)</option>
+    <option value="16:00:00">Evening (04:00 PM)</option>
+    <option value="00:00:00">Night (12:00 AM)</option>
+</select>
                 </div>
                 <div class="col-md-6">
                 <label class="form-label">Primary Zone</label>

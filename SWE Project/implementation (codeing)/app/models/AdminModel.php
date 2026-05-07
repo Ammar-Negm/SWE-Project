@@ -39,4 +39,18 @@ class AdminModel
         // placeholder
         return true;
     }
+    public function createUser($data)
+{
+    $sql = "INSERT INTO users (name, email, password, phone, role)
+            VALUES (?, ?, ?, ?, ?)";
+
+    $stmt = $this->db->prepare($sql);
+    return $stmt->execute([
+        $data['name'],
+        $data['email'],
+        $data['password'],
+        $data['phone'],
+        $data['role']
+    ]);
+}
 }

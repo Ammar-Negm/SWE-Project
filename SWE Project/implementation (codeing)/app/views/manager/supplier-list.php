@@ -83,9 +83,9 @@
           <h5 class="modal-title fw-bold">Add New Supplier</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
-        <form method="POST" action="add_supplier.php">
+        <form method="POST" action="<?= BASE_URL ?>index.php?url=Manager/addSupplier">
           <div class="modal-body">
-            <div class="mb-3"><label class="form-label">Company Name</label><input type="text" class="form-control" name="company_name" required></div>
+            <div class="mb-3"><label class="form-label">Company Name</label><input type="text" class="form-control" name="name" required></div>
             <div class="mb-3"><label class="form-label">Contact Email</label><input type="email" class="form-control" name="email" required></div>
             <div class="mb-3"><label class="form-label">Phone Number</label><input type="text" class="form-control" name="phone"></div>
             <div class="mb-3"><label class="form-label">Expected Lead Time (Days)</label><input type="number" class="form-control" name="lead_time" placeholder="e.g., 4"></div>
