@@ -44,4 +44,33 @@ class PurchaseOrderService {
 
         return true;
     }
+    // Partial Shipment Reconciliation
+public function receivePartialShipment($po_id, $receivedItems) {
+    $db = Database::getInstance()->getConnection();
+    $stmt = $db->prepare("SELECT * FROM po_item WHERE po_id = :po_id");
+    $stmt->execute([':po_id' => $po_id]);
+    $expectedItems = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $missing       = [];
+    $received      = array_column($receivedItems, 'quantity', 'product_id');
+    foreach ($expectedItems as $expected) {
+        $pid    = $expected['product_id'];
+        $recQty = $received[$pid] ?? 0;
+        if ($recQty < $expected['quantity']) {
+            $missing[] = [
+                'product_id'   => $pid,
+                'expected_qty' => $expected['quantity'],
+                'received_qty' => $recQty,
+                'shortage'     => $expected['quantity'] - $recQty
+            ];
+        }
+        if ($recQty > 0) {
+            $storage = new StorageService();
+            $storage->smartStore($pid, 1, $recQty);
+        }
+    }
+    $newStatus = empty($missing) ? 'delivered' : 'partial';
+    $db->prepare("UPDATE purchaseorder SET status=? WHERE po_id=?")
+       ->execute([$newStatus, $po_id]);
+    return ['status' => $newStatus, 'missing' => $missing];
+}
 }

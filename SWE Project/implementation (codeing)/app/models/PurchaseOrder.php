@@ -45,4 +45,38 @@ class PurchaseOrder {
             ":id" => $po_id
         ]);
     }
+public function getAll() {
+    $sql = "SELECT po.*, s.name as supplier_name 
+            FROM purchaseorder po
+            JOIN supplier s ON po.supplier_id = s.supplier_id
+            ORDER BY po.po_id DESC";
+    $stmt = $this->db->prepare($sql);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+public function getAllSuppliers() {
+    $sql = "SELECT supplier_id, name FROM supplier";
+    $stmt = $this->db->prepare($sql);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+public function generatePoNumber() {
+    $stmt = $this->db->query("SELECT COUNT(*) as cnt FROM purchaseorder");
+    $count = $stmt->fetch()['cnt'];
+    return 'PO-' . str_pad($count + 1, 5, '0', STR_PAD_LEFT);
+}
+
+public function createFull($po_number, $supplier_id, $expected_date, $total_value) {
+    $sql = "INSERT INTO purchaseorder (po_number, supplier_id, expected_delivery_date, total_value, status)
+            VALUES (:po_number, :supplier_id, :expected_date, :total_value, 'pending')";
+    $stmt = $this->db->prepare($sql);
+    return $stmt->execute([
+        ':po_number'     => $po_number,
+        ':supplier_id'   => $supplier_id,
+        ':expected_date' => $expected_date,
+        ':total_value'   => $total_value,
+    ]);
+}
 }

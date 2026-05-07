@@ -56,4 +56,43 @@ class StorageService {
 
         return $stmt->fetchAll();
     }
+    // Volumetric Capacity Calculator
+public function calculateFit($length, $width, $height, $bin_id) {
+    $db = Database::getInstance()->getConnection();
+    $stmt = $db->prepare("SELECT maxWeight, currentWeight FROM bin WHERE bin_id = :id");
+    $stmt->execute([':id' => $bin_id]);
+    $bin = $stmt->fetch(PDO::FETCH_ASSOC);
+    if (!$bin) return ['fits' => false, 'error' => 'Bin not found'];
+    $itemVolume = $length * $width * $height;
+    $remaining  = $bin['maxWeight'] - $bin['currentWeight'];
+    return [
+        'fits'        => $itemVolume <= $remaining,
+        'itemVolume'  => $itemVolume,
+        'remaining'   => $remaining,
+        'percentFull' => ($bin['currentWeight'] / $bin['maxWeight']) * 100
+    ];
+}
+
+// Bulk Breakdown (De-palletize)
+public function depalletize($product_id, $totalUnits, $unitWeight, $unitsPerBin = 50) {
+    $results   = [];
+    $remaining = $totalUnits;
+    while ($remaining > 0) {
+        $batchQty    = min($remaining, $unitsPerBin);
+        $batchWeight = $batchQty * $unitWeight;
+        $bin = $this->smartStore($product_id, $batchWeight, $batchQty);
+        if (!$bin) {
+            $results[] = ['status' => 'failed', 'remaining' => $remaining];
+            break;
+        }
+        $results[] = [
+            'status'   => 'stored',
+            'bin_id'   => $bin['bin_id'],
+            'location' => $bin['shelfLocation'],
+            'quantity' => $batchQty
+        ];
+        $remaining -= $batchQty;
+    }
+    return $results;
+}
 }

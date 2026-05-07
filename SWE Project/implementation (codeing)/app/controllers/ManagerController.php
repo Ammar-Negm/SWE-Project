@@ -46,10 +46,50 @@ class ManagerController extends Controller
     $this->view("manager/inventory", ['products' => $products]);
 }
 
-    public function procurement()
-    {
-        $this->view("manager/procurement");
+// عدّل الموجودة
+public function procurement()
+{
+    require_once __DIR__ . "/../models/PurchaseOrder.php";
+    $poModel = new PurchaseOrder();
+    $orders    = $poModel->getAll();
+    $suppliers = $poModel->getAllSuppliers();
+    $this->view("manager/procurement", [
+        'orders'    => $orders,
+        'suppliers' => $suppliers
+    ]);
+}
+
+// أضف جديدة
+public function generatePO()
+{
+    require_once __DIR__ . "/../models/PurchaseOrder.php";
+    $poModel = new PurchaseOrder();
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $supplier_id   = $_POST['supplier_id']   ?? '';
+        $expected_date = $_POST['expected_date'] ?? null;
+        $total_value   = $_POST['total_value']   ?? 0;
+        $po_number     = $poModel->generatePoNumber();
+
+        $poModel->createFull($po_number, $supplier_id, $expected_date, $total_value);
+
+        header('Location: index.php?url=Manager/procurement');
+        exit;
     }
+
+    $suppliers = $poModel->getAllSuppliers();
+    $this->view("manager/procurement", ['suppliers' => $suppliers]);
+}
+
+
+// أضف جديدة
+public function viewPO($id)
+{
+    require_once __DIR__ . "/../models/PurchaseOrder.php";
+    $poModel = new PurchaseOrder();
+    $order   = $poModel->getById($id);
+    $this->view("manager/procurement-view", ['order' => $order]);
+}
 
     public function analytics()
     {
