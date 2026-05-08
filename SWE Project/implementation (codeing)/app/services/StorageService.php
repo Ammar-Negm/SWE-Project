@@ -96,4 +96,151 @@ public function depalletize($product_id, $totalUnits, $unitWeight, $unitsPerBin 
     }
     return $results;
 }
+// Packing Material Optimizer
+// بيختار أنسب مادة تغليف بناءً على وزن وحجم الأوردر
+// بيرجع أرخص مادة تغليف مناسبة
+public function getBestPackingMaterial($totalWeight, $totalVolume) {
+    $db = Database::getInstance()->getConnection();
+
+    // جلب كل المواد المناسبة مرتبة من الأرخص للأغلى
+    $stmt = $db->prepare("
+        SELECT * FROM packing_material
+        WHERE max_weight >= ?
+        AND max_volume  >= ?
+        ORDER BY unit_cost ASC
+        LIMIT 1
+    ");
+    $stmt->execute([$totalWeight, $totalVolume]);
+    $material = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$material) {
+        return ['success' => false, 'message' => 'No suitable packing material found'];
+    }
+
+    return [
+        'success'     => true,
+        'material_id' => $material['material_id'],
+        'name'        => $material['name'],
+        'unit_cost'   => $material['unit_cost']
+    ];
+}
+
+
+// Environmental Sensitivity Monitor
+// بيشتغل بدون DB — بيتبعتله readings وبيرجع alerts لو في خطر
+public function checkEnvironment($zone_id, $temperature, $humidity) {
+    
+    // Rules ثابتة لكل نوع زون — ممكن تعدل الأرقام حسب مشروعك
+    $zoneRules = [
+        'default' => ['min_temp' => 0,  'max_temp' => 35, 'min_hum' => 20, 'max_hum' => 80],
+        'cold'    => ['min_temp' => -5, 'max_temp' => 8,  'min_hum' => 30, 'max_hum' => 60],
+        'dry'     => ['min_temp' => 15, 'max_temp' => 30, 'min_hum' => 10, 'max_hum' => 40],
+    ];
+
+    // جلب اسم الزون من الـ DB عشان نعرف نطبق أنهي rule
+    $db = Database::getInstance()->getConnection();
+    $stmt = $db->prepare("SELECT zone_name FROM zone WHERE zone_id = ?");
+    $stmt->execute([$zone_id]);
+    $zone = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$zone) {
+        return ['safe' => false, 'alerts' => [['message' => 'Zone not found']]];
+    }
+
+    // اختار الـ rule المناسبة — لو الاسم مش معروف يستخدم default
+    $zoneName = strtolower($zone['zone_name']);
+    $rule = $zoneRules[$zoneName] ?? $zoneRules['default'];
+
+    $alerts = [];
+
+    if ($temperature < $rule['min_temp'] || $temperature > $rule['max_temp']) {
+        $alerts[] = [
+            'type'    => 'TEMPERATURE',
+            'value'   => $temperature,
+            'message' => "Temperature {$temperature}°C out of safe range ({$rule['min_temp']}–{$rule['max_temp']}°C)"
+        ];
+    }
+
+    if ($humidity < $rule['min_hum'] || $humidity > $rule['max_hum']) {
+        $alerts[] = [
+            'type'    => 'HUMIDITY',
+            'value'   => $humidity,
+            'message' => "Humidity {$humidity}% out of safe range ({$rule['min_hum']}–{$rule['max_hum']}%)"
+        ];
+    }
+
+    return [
+        'zone_id'     => $zone_id,
+        'zone_name'   => $zone['zone_name'],
+        'temperature' => $temperature,
+        'humidity'    => $humidity,
+        'safe'        => empty($alerts),
+        'alerts'      => $alerts
+    ];
+}
+
+// HAZMAT Guard
+// بيشتغل بدون table جديدة — الـ rules محددة في الكود حسب category
+// وبيتحقق من الكمية الموجودة في الـ zone مقارنة بالـ limit
+public function validateHazmat($product_id, $quantity, $zone_id) {
+    $db = Database::getInstance()->getConnection();
+
+    // Hardcoded HAZMAT rules — category => max quantity مسموح بيها في أي zone
+    $hazmatRules = [
+        'chemical'   => 500,
+        'flammable'  => 200,
+        'explosive'  => 50,
+        'toxic'      => 100,
+        'radioactive'=> 10,
+    ];
+
+    // جلب category المنتج
+    $stmt = $db->prepare("SELECT category FROM product WHERE product_id = ?");
+    $stmt->execute([$product_id]);
+    $product = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$product) {
+        return ['allowed' => false, 'reason' => 'Product not found'];
+    }
+
+    $category = strtolower($product['category']);
+
+    // لو الـ category مش في قائمة الـ HAZMAT — المنتج عادي وأوكي
+    if (!isset($hazmatRules[$category])) {
+        return ['allowed' => true, 'reason' => 'Product is not classified as HAZMAT'];
+    }
+
+    $maxAllowed = $hazmatRules[$category];
+
+    // جلب الكمية الموجودة حالياً من نفس الـ category في الـ zone ده
+    $stmt = $db->prepare("
+        SELECT COALESCE(SUM(ii.quantity), 0) AS current_qty
+        FROM inventory_item ii
+        JOIN bin b       ON ii.bin_id    = b.bin_id
+        JOIN product p   ON ii.product_id = p.product_id
+        WHERE b.zone_id   = ?
+        AND LOWER(p.category) = ?
+    ");
+    $stmt->execute([$zone_id, $category]);
+    $current = (int)$stmt->fetch(PDO::FETCH_ASSOC)['current_qty'];
+
+    if (($current + $quantity) > $maxAllowed) {
+        return [
+            'allowed'      => false,
+            'reason'       => "Exceeds HAZMAT limit for '{$category}' in this zone",
+            'current_qty'  => $current,
+            'adding'       => $quantity,
+            'max_allowed'  => $maxAllowed
+        ];
+    }
+
+    return [
+        'allowed'     => true,
+        'category'    => $category,
+        'current_qty' => $current,
+        'adding'      => $quantity,
+        'remaining'   => $maxAllowed - ($current + $quantity),
+        'max_allowed' => $maxAllowed
+    ];
+}
 }

@@ -416,6 +416,35 @@ CREATE TABLE `zone` (
   `max_capacity` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-------------------------------------------------------
+
+-- [1] محتاجها لـ Pick-Failure Protocol
+CREATE TABLE `pick_failure_log` (
+  `failure_id`  INT AUTO_INCREMENT PRIMARY KEY,
+  `picktask_id` INT NOT NULL,
+  `staff_id`    INT NOT NULL,
+  `reason`      VARCHAR(255),
+  `created_at`  DATETIME DEFAULT NOW(),
+  FOREIGN KEY (`picktask_id`) REFERENCES `pick_task`(`picktask_id`) ON DELETE CASCADE,
+  FOREIGN KEY (`staff_id`)    REFERENCES `floorstaff`(`staff_id`)   ON DELETE CASCADE
+);
+
+-- [2] محتاجها لـ Packing Material Optimizer
+CREATE TABLE `packing_material` (
+  `material_id` INT AUTO_INCREMENT PRIMARY KEY,
+  `name`        VARCHAR(100) NOT NULL,
+  `max_weight`  DECIMAL(10,2) NOT NULL,
+  `max_volume`  DECIMAL(10,2) NOT NULL,
+  `unit_cost`   DECIMAL(10,2) NOT NULL
+);
+
+-- [3] محتاجها لـ Warehouse Emergency Mode
+CREATE TABLE `warehouse_config` (
+  `config_key`   VARCHAR(100) PRIMARY KEY,
+  `config_value` VARCHAR(255) NOT NULL
+);
+
+
 --
 -- Dumping data for table `zone`
 --
