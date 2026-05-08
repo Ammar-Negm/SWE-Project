@@ -71,4 +71,19 @@ class PickList {
     $stmt->execute([':staff_id' => $staff_id]);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
+
+// ---------------------------------------------  //
+
+public function getActiveStaffWithTasks() {
+    $sql = "SELECT f.name, pl.status, plo.order_id 
+            FROM floorstaff f
+            JOIN pick_list pl ON f.staff_id = pl.assigned_staff_id
+            JOIN picklist_order plo ON pl.pick_list_id = plo.pick_list_id
+            WHERE pl.status = 'In Progress' OR pl.status = 'Open'
+            LIMIT 5";
+    $stmt = $this->db->prepare($sql);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
 }

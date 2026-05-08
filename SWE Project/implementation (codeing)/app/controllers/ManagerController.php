@@ -37,14 +37,75 @@ class ManagerController extends Controller
 
     public function dashboard()
     {
-        $this->view("manager/dashboard");
+        // 1. إحصائيات سريعة (Top Stats)
+        // إجمالي عدد المنتجات
+        $totalSKUs = $this->productModel->getCount(); // هنضيف الفنكشن دي في الموديل
+        
+        // الأوردرات المفتوحة (Purchase Orders)
+        require_once __DIR__ . "/../models/PurchaseOrder.php";
+        $poModel = new PurchaseOrder();
+        $openPOs = count($poModel->getByStatus('Pending') ?? []);
+
+        // 2. الموظفين النشطين (Active Staff)
+        require_once __DIR__ . "/../models/PickList.php";
+        $plModel = new PickList();
+        // جلب الموظفين اللي معاهم قوائم تجميع حالياً
+        $activeStaff = $plModel->getActiveStaffWithTasks(); 
+
+        // 3. تنبيهات المخزن (Inventory Alerts)
+        // هنجلب المنتجات اللي وصلت للـ minStockLevel
+        $alerts = $this->productModel->getLowStockAlerts();
+
+        // 4. إعادة طلب بضاعة (Upcoming Reorders)
+        $upcomingReorders = $this->productModel->getUpcomingReorders();
+
+        // إرسال كل الداتا للـ View
+        $this->view("manager/dashboard", [
+            'totalSKUs' => $totalSKUs,
+            'openPOs'   => $openPOs,
+            'activeStaff' => $activeStaff,
+            'alerts'    => $alerts,
+            'upcomingReorders' => $upcomingReorders,
+            'capacity'  => 73 // ممكن تحسبها من جدول الـ bins لاحقاً
+        ]);
     }
 
    public function inventory()
-{
-    $products = $this->productModel->getAll();
-    $this->view("manager/inventory", ['products' => $products]);
-}
+    {
+        $db = Database::getInstance()->getConnection();
+        
+        // 1. Query احترافي يجمع بيانات المنتج مع تفاصيل المخزن
+        $sql = "SELECT 
+                    p.product_id, 
+                    p.SKU, 
+                    p.name, 
+                    p.basePrice, 
+                    p.minStockLevel,
+                    p.category as prod_cat,
+                    IFNULL(SUM(ii.quantity), 0) as total_available,
+                    GROUP_CONCAT(DISTINCT z.zone_name SEPARATOR ', ') as zones
+                FROM product p
+                LEFT JOIN inventory_item ii ON p.product_id = ii.product_id
+                LEFT JOIN bin b ON ii.bin_id = b.bin_id
+                LEFT JOIN zone z ON b.zone_id = z.zone_id
+                GROUP BY p.product_id
+                ORDER BY p.product_id DESC";
+
+        $stmt = $db->prepare($sql);
+        $stmt->execute();
+        $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // 2. جلب البنات المتاحة مع اسم الزون عشان تظهر في الـ Modal
+        require_once __DIR__ . "/../models/bin.php";
+        $binModel = new Bin();
+        $bins = $binModel->getBinsWithZoneNames();
+
+        // 3. إرسال البيانات للـ View مرة واحدة فقط
+        $this->view("manager/inventory", [
+            'products' => $products,
+            'bins'     => $bins
+        ]);
+    }
 
 // عدّل الموجودة
 public function procurement()
@@ -156,35 +217,37 @@ public function viewPO($id)
         $this->view("manager/products/index", ['products' => $products]);
     }
 
-    public function addProduct()
-{
+    public function addProduct() {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        try {
-            $this->productModel->insert([
-                'sku'      => $_POST['sku']      ?? '',
-                'name'     => $_POST['name']     ?? '',
-                'price'    => $_POST['price']    ?? 0,
-                'category' => $_POST['category'] ?? '',
-                'minStock' => $_POST['minStock'] ?? 0,
-            ]);
+        // 1. Register the product with fallback values to prevent undefined key errors
+        $productData = [
+            'sku'      => $_POST['sku'] ?? '',
+            'name'     => $_POST['name'] ?? '',
+            'price'    => $_POST['price'] ?? 0,
+            'category' => $_POST['category'] ?? 'Uncategorized', 
+            'minStock' => $_POST['minStock'] ?? 0
+        ];
+        
+        $productId = $this->productModel->insert($productData); 
 
-            header('Location: index.php?url=Manager/inventory'); // ✅ غيّر
-            exit;
-
-        } catch (PDOException $e) {
-            if ($e->getCode() == 23000) {
-                $products = $this->productModel->getAll(); // ✅ أضف
-                $this->view("manager/inventory", [
-                    'products' => $products,
-                    'error'    => "❌ SKU already exists"
-                ]);
-                return;
+        if ($productId) {
+            // 2. Register initial stock in inventory_item
+            require_once __DIR__ . "/../models/InventoryItem.php";
+            $inventoryModel = new InventoryItem();
+            
+            $binId = $_POST['bin_id'] ?? null;
+            // Default to 0 if initial_qty is somehow missing
+            $qty   = $_POST['initial_qty'] ?? 0; 
+            
+            // Only create an inventory record if a bin was selected and quantity is valid
+            if ($binId && $qty > 0) {
+                $inventoryModel->create($productId, $binId, $qty, 'Available');
             }
-            throw $e;
         }
-    }
 
-    $this->inventory(); // ✅ بدل view مباشرة
+        header('Location: index.php?url=Manager/inventory&success=1');
+        exit;
+    }
 }
   public function editProduct($id = null)
 {

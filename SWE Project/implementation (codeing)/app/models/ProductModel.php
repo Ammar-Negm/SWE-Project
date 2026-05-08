@@ -27,15 +27,20 @@ class ProductModel
     {
         $stmt = $this->db->prepare(
             "INSERT INTO product (SKU, name, basePrice, category, minStockLevel)
-             VALUES (:sku, :name, :price, :category, :minStock)"
+            VALUES (:sku, :name, :price, :category, :minStock)"
         );
-        return $stmt->execute([
+        
+        // 1. Execute the query WITHOUT 'return'
+        $stmt->execute([
             ':sku'      => $data['sku'],
             ':name'     => $data['name'],
             ':price'    => $data['price'],
             ':category' => $data['category'],
             ':minStock' => $data['minStock'],
         ]);
+
+        // 2. Now properly return the newly generated product_id
+        return $this->db->lastInsertId();
     }
 
     public function update($id, $data)
@@ -60,4 +65,39 @@ class ProductModel
         $stmt = $this->db->prepare("DELETE FROM product WHERE product_id = :id");
         return $stmt->execute([':id' => $id]);
     }
+
+
+    // ---------------------------------------------  //
+    
+    // 1. إجمالي عدد الـ SKUs
+public function getCount() {
+    $stmt = $this->db->query("SELECT COUNT(*) as total FROM product");
+    return $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+}
+
+// 2. تنبيهات النقص (Low Stock)
+public function getLowStockAlerts() {
+    $sql = "SELECT p.name, p.SKU, ii.quantity, p.minStockLevel, z.zone_name 
+            FROM product p
+            JOIN inventory_item ii ON p.product_id = ii.product_id
+            JOIN bin b ON ii.bin_id = b.bin_id
+            JOIN zone z ON b.zone_id = z.zone_id
+            WHERE ii.quantity <= p.minStockLevel
+            ORDER BY ii.quantity ASC LIMIT 5";
+    $stmt = $this->db->prepare($sql);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+// 3. إعادة طلب بضاعة
+public function getUpcomingReorders() {
+    $sql = "SELECT p.SKU, s.name as supplier_name, p.basePrice
+            FROM product p
+            JOIN supplier s ON p.product_id = p.product_id -- عدل الربط ده حسب جدول الموردين عندك
+            WHERE p.minStockLevel > 0 
+            LIMIT 3";
+    $stmt = $this->db->prepare($sql);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 } 

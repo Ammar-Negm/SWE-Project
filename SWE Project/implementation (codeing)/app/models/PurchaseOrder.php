@@ -79,4 +79,14 @@ public function createFull($po_number, $supplier_id, $expected_date, $total_valu
         ':total_value'   => $total_value,
     ]);
 }
+
+//----------------------------------------------
+
+public function getByStatus($status) {
+    $sql = "SELECT * FROM purchaseorder WHERE status = :status";
+    $stmt = $this->db->prepare($sql);
+    $stmt->execute([':status' => $status]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
 }

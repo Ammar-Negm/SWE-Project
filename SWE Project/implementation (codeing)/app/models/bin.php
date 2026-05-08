@@ -161,5 +161,20 @@ class Bin
         ]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+
+    // -------------------------------------------------------
+    // GET BINS WITH ZONES — جلب البنات مع اسم الزون
+    // -------------------------------------------------------
+    public function getBinsWithZoneNames()
+    {
+        $sql = "SELECT b.*, z.zone_name 
+                FROM bin b
+                LEFT JOIN zone z ON b.zone_id = z.zone_id";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
 }
 ?>

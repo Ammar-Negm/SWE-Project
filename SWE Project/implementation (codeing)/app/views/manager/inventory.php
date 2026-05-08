@@ -1,3 +1,6 @@
+<?php /** @var array $data */ ?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -77,40 +80,37 @@
               </tr>
             </thead>
             <tbody>
-  <?php if (!empty($products)): ?>
-    <?php foreach ($products as $p): ?>
-    <tr>
-      <td><?= htmlspecialchars($p['SKU']) ?></td>
-      <td><?= htmlspecialchars($p['name']) ?></td>
-      <td><?= htmlspecialchars($p['category'] ?? '—') ?></td>
-      <td><?= htmlspecialchars($p['minStockLevel'] ?? '—') ?></td>
-      <td>—</td>
-      <td><?= htmlspecialchars($p['basePrice'] ?? '—') ?></td>
-      <td>
-        <?php if (($p['minStockLevel'] ?? 0) > 0): ?>
-          <span class="badge bg-success">In Stock</span>
-        <?php else: ?>
-          <span class="badge bg-warning text-dark">Low Stock</span>
-        <?php endif; ?>
-      </td>
-      <td>
-        <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-eye"></i></button>
-        <button class="btn btn-sm btn-outline-primary"
-          onclick="openEdit(<?= $p['product_id'] ?>, '<?= htmlspecialchars($p['SKU']) ?>', '<?= htmlspecialchars($p['name']) ?>', '<?= $p['basePrice'] ?>', '<?= htmlspecialchars($p['category'] ?? '') ?>', '<?= $p['minStockLevel'] ?>')">
-          <i class="bi bi-pencil"></i>
-        </button>
-        <a href="<?= BASE_URL ?>index.php?url=Manager/deleteProduct/<?= $p['product_id'] ?>"
-           class="btn btn-sm btn-outline-danger"
-           onclick="return confirm('Delete?')"><i class="bi bi-trash"></i></a>
-      </td>
-    </tr>
-    <?php endforeach; ?>
-  <?php else: ?>
-    <tr>
-      <td colspan="8" class="text-center text-muted py-4">No products found.</td>
-    </tr>
-  <?php endif; ?>
-</tbody>
+              <?php if (!empty($products)): ?>
+                <?php foreach ($products as $p): ?>
+                <tr>
+                  <td><?= htmlspecialchars($p['SKU']) ?></td>
+                  <td><?= htmlspecialchars($p['name']) ?></td>
+                  <td><span class="badge bg-light text-dark"><?= htmlspecialchars($p['zones'] ?? 'Not Assigned') ?></span></td>
+                  <td class="fw-bold text-primary"><?= number_format($p['total_available']) ?></td>
+                  <td>—</td> <td>$<?= number_format($p['basePrice'], 2) ?></td>
+                  <td>
+                    <?php if ($p['total_available'] > $p['minStockLevel']): ?>
+                      <span class="badge bg-success">In Stock</span>
+                    <?php elseif ($p['total_available'] > 0): ?>
+                      <span class="badge bg-warning text-dark">Low Stock</span>
+                    <?php else: ?>
+                      <span class="badge bg-danger">Out of Stock</span>
+                    <?php endif; ?>
+                  </td>
+                  <td>
+                    <button class="btn btn-sm btn-outline-primary" 
+                            onclick="openEdit(<?= $p['product_id'] ?>, '<?= $p['SKU'] ?>', '<?= $p['name'] ?>', '<?= $p['basePrice'] ?>', '<?= $p['prod_cat'] ?>', '<?= $p['minStockLevel'] ?>')">
+                      <i class="bi bi-pencil"></i>
+                    </button>
+                    <a href="<?= BASE_URL ?>index.php?url=Manager/deleteProduct/<?= $p['product_id'] ?>" 
+                      class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete?')"><i class="bi bi-trash"></i></a>
+                  </td>
+                </tr>
+                <?php endforeach; ?>
+              <?php else: ?>
+                <tr><td colspan="8" class="text-center py-4">No inventory items found.</td></tr>
+              <?php endif; ?>
+            </tbody>
           </table>
         </div>
       </div>
@@ -160,7 +160,22 @@
               <div class="mb-3"><label class="form-label">SKU</label><input type="text" class="form-control" name="sku" required placeholder="e.g., SKU-1234"></div>
               <div class="mb-3"><label class="form-label">Product Name</label><input type="text" class="form-control" name="name" required></div>
               <div class="row mb-3">
-                <div class="col-6"><label class="form-label">Zone/Bin</label><input type="text" class="form-control" name="category"></div>
+                <div class="row mb-3">
+                  <div class="col-6">
+                  <label class="form-label text-primary fw-bold">Target Bin</label>
+                  <select class="form-select border-primary" name="bin_id" required>
+                    <option value="" selected disabled>Select Bin...</option>
+                    <?php if (!empty($data['bins'])): ?>
+                        <?php foreach ($data['bins'] as $bin): ?>
+                            <option value="<?= $bin['bin_id'] ?>">
+                                <?= htmlspecialchars($bin['zone_name']) ?> - <?= htmlspecialchars($bin['shelfLocation']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <option value="">No Bins found in database</option>
+                    <?php endif; ?>
+                  </select> 
+                </div>
                 <div class="col-6"><label class="form-label">Price</label><input type="number" class="form-control" name="price"></div>
               </div>
               <div class="mb-3"><label class="form-label">Minimum Stock</label><input type="number" step="0.01" class="form-control" name="minStock"></div>
@@ -208,24 +223,59 @@
             <h5 class="modal-title fw-bold">Edit Item</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
-          <form method="POST" id="editForm" action="">
+          <form method="POST" action="<?= BASE_URL ?>index.php?url=Manager/addProduct">
             <div class="modal-body">
-              <div class="mb-3"><label class="form-label">SKU</label>
-                <input type="text" class="form-control" name="sku" id="edit_sku" required></div>
-              <div class="mb-3"><label class="form-label">Product Name</label>
-                <input type="text" class="form-control" name="name" id="edit_name" required></div>
-              <div class="row mb-3">
-                <div class="col-6"><label class="form-label">Zone/Bin</label>
-                  <input type="text" class="form-control" name="category" id="edit_category"></div>
-                <div class="col-6"><label class="form-label">Price</label>
-                  <input type="number" class="form-control" name="price" id="edit_price"></div>
+              <div class="mb-3">
+                <label class="form-label">SKU</label>
+                <input type="text" class="form-control" name="sku" required placeholder="e.g., SKU-1234">
               </div>
-              <div class="mb-3"><label class="form-label">Minimum Stock</label>
-                <input type="number" class="form-control" name="minStock" id="edit_minStock"></div>
+              <div class="mb-3">
+                <label class="form-label">Product Name</label>
+                <input type="text" class="form-control" name="name" required>
+              </div>
+              
+              <div class="row mb-3">
+                <div class="col-6">
+                  <label class="form-label">Category</label>
+                  <input type="text" class="form-control" name="category" placeholder="e.g., Electronics">
+                </div>
+                <div class="col-6">
+                  <label class="form-label">Price</label>
+                  <input type="number" step="0.01" class="form-control" name="price">
+                </div>
+              </div>
+
+              <div class="row mb-3">
+                <div class="col-6">
+                  <label class="form-label text-primary fw-bold">Target Bin</label>
+                  <select class="form-select border-primary" name="bin_id" required>
+                    <option value="" selected disabled>Select Bin...</option>
+                    <?php if (!empty($data['bins'])): ?>
+                        <?php foreach ($data['bins'] as $bin): ?>
+                            <option value="<?= $bin['bin_id'] ?>">
+                                <?= htmlspecialchars($bin['zone_name']) ?> - <?= htmlspecialchars($bin['shelfLocation']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <option value="">No Bins found in database</option>
+                    <?php endif; ?>
+                  </select> 
+                </div>
+                <div class="col-6">
+                  <label class="form-label">Initial Quantity</label>
+                  <input type="number" class="form-control" name="initial_qty" required min="1" placeholder="e.g., 50">
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Minimum Stock Level</label>
+                <input type="number" class="form-control" name="minStock">
+              </div>
             </div>
+            
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-              <button type="submit" class="btn btn-primary">Save Changes</button>
+              <button type="submit" class="btn btn-primary">Save Item</button>
             </div>
           </form>
         </div>

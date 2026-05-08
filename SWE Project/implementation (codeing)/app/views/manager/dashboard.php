@@ -1,7 +1,9 @@
 <?php
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
+/** @var array $data */ 
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -32,17 +34,6 @@ error_reporting(E_ALL);
 <div id="wrapper">
   <aside class="sidebar" id="sidebar">
     <div class="brand">⬡ WareLogix</div>
-    <!--
-     <nav class="nav flex-column mt-3">
-      <a class="nav-link active" href="#"><i class="bi bi-grid-1x2"></i> Dashboard</a>
-      <a class="nav-link" href="inventory.php"><i class="bi bi-box-seam"></i> Inventory</a>
-      <a class="nav-link" href="#"><i class="bi bi-layers"></i> Zonal Optimizer</a>
-      <a class="nav-link" href="#"><i class="bi bi-cart3"></i> Procurement</a>
-      <a class="nav-link" href="#"><i class="bi bi-truck"></i> Suppliers</a>
-      <a class="nav-link" href="#"><i class="bi bi-graph-up"></i> Analytics</a>
-      <a class="nav-link" href="#"><i class="bi bi-gear"></i> System Admin</a>
-    </nav> 
-    -->
     <nav class="nav flex-column mt-3">
       <a class="nav-link active" href="<?= BASE_URL ?>index.php?url=Manager/dashboard"><i class="bi bi-grid-1x2"></i> Dashboard</a>
       <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Manager/inventory"><i class="bi bi-box-seam"></i> Inventory</a>
@@ -66,32 +57,16 @@ error_reporting(E_ALL);
       <a href="index.php?url=Auth/logout" class="btn btn-outline-danger btn-sm">Logout</a>
     </nav>
 
-    <div class="container-fluid py-4">
-      <div class="row mb-4">
-        <div class="col-md-3">
-          <div class="card p-3">
-            <h6 class="text-muted">Total SKUs</h6>
-            <h3 class="fw-bold">4,821</h3>
-          </div>
-        </div>
-        <div class="col-md-3">
-          <div class="card p-3">
-            <h6 class="text-muted">Capacity Used</h6>
-            <h3 class="fw-bold">73%</h3>
-          </div>
-        </div>
-        <div class="col-md-3">
-          <div class="card p-3">
-            <h6 class="text-muted">Open Purchase Orders</h6>
-            <h3 class="fw-bold">12</h3>
-          </div>
-        </div>
-        <div class="col-md-3">
-          <div class="card p-3 border-start border-danger border-4">
-            <h6 class="text-muted">Pending Alerts</h6>
-            <h3 class="fw-bold text-danger">5</h3>
-          </div>
-        </div>
+    <div class="col-md-3">
+      <div class="card p-3">
+        <h6 class="text-muted">Total SKUs</h6>
+        <h3 class="fw-bold"><?= number_format($data['totalSKUs']) ?></h3>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card p-3">
+        <h6 class="text-muted">Open Purchase Orders</h6>
+        <h3 class="fw-bold"><?= $data['openPOs'] ?></h3>
       </div>
     </div>
 
@@ -111,42 +86,16 @@ error_reporting(E_ALL);
                   </tr>
                 </thead>
                 <tbody>
+                  <?php foreach($data['alerts'] as $alert): ?>
                   <tr>
-                    <td><span class="php-dynamic">A-12</span></td>
-                    <td><span class="php-dynamic">SKU-00234 (Chilled Produce)</span></td>
-                    <td><span class="php-dynamic">Temp Exceeded (8°C)</span></td>
-                    <td><span class="badge bg-danger">Critical</span></td>
-                    <td><span class="php-dynamic">10 mins ago</span></td>
-                  </tr>
-                  <tr>
-                    <td><span class="php-dynamic">B-05</span></td>
-                    <td><span class="php-dynamic">SKU-00891 (Raw Chemicals)</span></td>
-                    <td><span class="php-dynamic">Low Stock</span></td>
+                    <td><span class="php-dynamic"><?= $alert['zone_name'] ?></span></td>
+                    <td><span class="php-dynamic"><?= $alert['SKU'] ?> (<?= $alert['name'] ?>)</span></td>
+                    <td><span class="php-dynamic text-danger">Low Stock (<?= $alert['quantity'] ?> left)</span></td>
                     <td><span class="badge bg-warning text-dark">Warning</span></td>
-                    <td><span class="php-dynamic">1 hr ago</span></td>
+                    <td><span class="php-dynamic">Just now</span></td>
                   </tr>
-                  <tr>
-                    <td><span class="php-dynamic">C-22</span></td>
-                    <td><span class="php-dynamic">SKU-00445 (Packaging Boxes)</span></td>
-                    <td><span class="php-dynamic">Low Stock</span></td>
-                    <td><span class="badge bg-warning text-dark">Warning</span></td>
-                    <td><span class="php-dynamic">2 hrs ago</span></td>
-                  </tr>
-                  <tr>
-                    <td><span class="php-dynamic">A-02</span></td>
-                    <td><span class="php-dynamic">SKU-00112 (Dairy)</span></td>
-                    <td><span class="php-dynamic">Expiry Warning (2 Days)</span></td>
-                    <td><span class="badge bg-danger">Critical</span></td>
-                    <td><span class="php-dynamic">3 hrs ago</span></td>
-                  </tr>
-                  <tr>
-                    <td><span class="php-dynamic">D-15</span></td>
-                    <td><span class="php-dynamic">SKU-00999 (Pallet Jack)</span></td>
-                    <td><span class="php-dynamic">Weight Discrepancy</span></td>
-                    <td><span class="badge bg-secondary">Info</span></td>
-                    <td><span class="php-dynamic">5 hrs ago</span></td>
-                  </tr>
-                  </tbody>
+                  <?php endforeach; ?>
+                </tbody>
               </table>
             </div>
           </div>
