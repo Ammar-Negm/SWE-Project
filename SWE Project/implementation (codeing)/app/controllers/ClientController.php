@@ -28,6 +28,8 @@ class ClientController extends Controller {
         
         $this->view("client/create-order", ['products' => $products]);
     }
+     
+
 
     // 2. معالجة بيانات الأوردر (أهم جزء)
     public function submitOrder()

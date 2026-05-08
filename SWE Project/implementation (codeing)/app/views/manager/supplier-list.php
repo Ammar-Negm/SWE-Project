@@ -71,7 +71,7 @@
             </div>
             <div class="d-flex gap-2">
               <button class="btn btn-outline-secondary w-50">Profile</button>
-              <a href="procurement.html" class="btn btn-primary w-50">Raise PO</a>
+              <a href="<?= BASE_URL ?>index.php?url=Manager/supplier" class="btn btn-primary w-50">Raise PO</a>
             </div>
           </div>
         </div>

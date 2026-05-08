@@ -26,6 +26,7 @@
   <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Staff/picking"><i class="bi bi-list-check"></i> Batch Pick List</a>
   <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Staff/packing"><i class="bi bi-box-seam"></i> Packing Station</a>
   <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Staff/qc"><i class="bi bi-shield-check"></i> QC Inspection</a>
+
 </nav>
     <div class="user-info mt-auto">
       <i class="bi bi-person-circle"></i> Logged in as: <span class="php-dynamic text-success">Floor Staff</span>
@@ -86,7 +87,7 @@
       </div>
       <div class="gap-2 d-flex">
         <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#missingItemModal">Report Missing Item</button>
-        <form method="POST" action="complete_pick.php">
+        <form method="POST"  href="<?= BASE_URL ?>index.php?url=Staff/picking">
           <button type="submit" class="btn btn-success fw-bold px-4">Complete Pick</button>
         </form>
       </div>

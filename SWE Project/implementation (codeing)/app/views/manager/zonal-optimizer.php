@@ -68,7 +68,7 @@
             <h6 class="fw-bold php-dynamic">SKU-002 (Chilled Produce)</h6>
             <p class="mb-1"><span class="badge bg-secondary">Current: C-04</span> <i class="bi bi-arrow-right"></i> <span class="badge bg-success">Suggested: A-01</span></p>
             <small class="text-muted php-dynamic">Reason: High Velocity Item.</small>
-            <form method="POST" action="approve_move.php" class="mt-2">
+            <form method="POST" action="<?= BASE_URL ?>index.php?url=Manager/zonaloptimizer" class="mt-2">
               <button type="submit" class="btn btn-sm btn-outline-primary w-100">Approve Move</button>
             </form>
           </div>
@@ -78,7 +78,7 @@
             <h6 class="fw-bold php-dynamic">SKU-099 (Pallet Jack)</h6>
             <p class="mb-1"><span class="badge bg-secondary">Current: B-02</span> <i class="bi bi-arrow-right"></i> <span class="badge bg-success">Suggested: D-15</span></p>
             <small class="text-muted php-dynamic">Reason: Consolidating equipment.</small>
-            <form method="POST" action="approve_move.php" class="mt-2">
+            <form method="POST" action="<?= BASE_URL ?>index.php?url=Manager/zonaloptimizer" class="mt-2">
               <button type="submit" class="btn btn-sm btn-outline-primary w-100">Approve Move</button>
             </form>
           </div>

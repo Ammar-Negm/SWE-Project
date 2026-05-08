@@ -48,6 +48,48 @@ class StaffController extends Controller
         header('Location: index.php?url=Staff/listTasks');
         exit;
     }
+   public function validateWeight()
+{
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+        $actualWeight = floatval($_POST['actual_weight']);
+        $expectedWeight = 1.2;
+
+        // فرق مسموح بسيط
+        if (abs($actualWeight - $expectedWeight) <= 0.2) {
+
+            header("Location: " . BASE_URL . "index.php?url=Staff/packing&status=validated");
+            exit;
+
+        } else {
+
+            header("Location: " . BASE_URL . "index.php?url=Staff/packing&status=invalid");
+            exit;
+        }
+    }
+}
+public function QC1()
+{
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+        // هنا هتحط اللوجيك بتاع QC
+        // مثال بسيط:
+
+        $po_id = $_POST['po_id'] ?? null;
+
+        if (!$po_id) {
+            header("Location: " . BASE_URL . "index.php?url=Staff/qc&status=error");
+            exit;
+        }
+
+        // بعد الحفظ أو المعالجة
+        header("Location: " . BASE_URL . "index.php?url=Staff/qc&status=success");
+        exit;
+    }
+
+    header("Location: " . BASE_URL . "index.php?url=Staff/qc");
+    exit;
+}
 }
 
 // class StaffController extends Controller
