@@ -36,7 +36,7 @@
       </div>
       <div class="d-flex align-items-center gap-3">
         <div class="position-relative cursor-pointer">
-          <a href="index.php?url=Auth/logout" class="btn btn-outline-danger btn-sm">Logout</a>
+          <a href="<?= BASE_URL ?>index.php?url=Auth/logout" class="btn btn-outline-danger btn-sm">Logout</a>
         </div>
       </div>
     </nav>
@@ -56,10 +56,23 @@
               <table class="table table-hover mb-0">
                 <thead class="table-light"><tr><th>Role</th><th>Accessible Modules</th><th>Action</th></tr></thead>
                 <tbody>
-                  <tr>
-                    <td>Manager</td><td>Dashboard, Inventory, Optimizer, Procurement, Admin</td>
-                    <td><button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editRoleModal">Edit</button></td>
-                  </tr>
+                  <?php if (!empty($users)): ?>
+                    <?php foreach ($users as $user): ?>
+                      <tr>
+                        <td><?= htmlspecialchars($user['role'] ?? 'User') ?></td>
+                        <td><?= htmlspecialchars($user['email'] ?? 'N/A') ?></td>
+                        <td>
+                          <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editRoleModal">
+                            Edit
+                          </button>
+                        </td>
+                      </tr>
+                    <?php endforeach; ?>
+                  <?php else: ?>
+                    <tr>
+                      <td colspan="3" class="text-center text-muted">No users found.</td>
+                    </tr>
+                  <?php endif; ?>
                 </tbody>
               </table>
             </div>
@@ -106,7 +119,7 @@
           <h5 class="modal-title fw-bold">Edit Role Permissions: <span class="text-primary-custom">Manager</span></h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
-        <form method="POST" action="update_role.php">
+        <form method="POST" action="<?= BASE_URL ?>index.php?url=Manager/systemadmin">
           <div class="modal-body">
             <p class="text-muted small">Select the modules this role can access:</p>
             <div class="form-check form-switch mb-2">

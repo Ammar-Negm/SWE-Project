@@ -122,5 +122,31 @@ class Zone
         // المقارنة
         return ($currentTotal + $addedWeight) <= $zone['max_capacity'];
     }
+
+    public function getZonesWithUtilization()
+{
+    $sql = "SELECT 
+                z.zone_id,
+                z.zone_name,
+                z.max_capacity,
+                IFNULL(SUM(b.currentWeight), 0) AS current_load,
+                COUNT(DISTINCT b.bin_id) AS total_bins
+            FROM zone z
+            LEFT JOIN bin b ON z.zone_id = b.zone_id
+            GROUP BY z.zone_id, z.zone_name, z.max_capacity
+            ORDER BY z.zone_name ASC";
+
+    $stmt = $this->db->prepare($sql);
+    $stmt->execute();
+    $zones = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    foreach ($zones as &$zone) {
+        $max = (float)($zone['max_capacity'] ?? 0);
+        $current = (float)($zone['current_load'] ?? 0);
+        $zone['utilization_percent'] = $max > 0 ? round(($current / $max) * 100) : 0;
+    }
+
+    return $zones;
+}
 }
 ?>

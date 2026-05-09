@@ -59,7 +59,7 @@ public function getRankedSuppliers($product_id) {
 // Automated Invoice Matching
 public function matchInvoiceToPO($po_id, $invoiceItems) {
     $db = Database::getInstance()->getConnection();
-    $stmt = $db->prepare("SELECT * FROM po_item WHERE po_id = :id");
+    $stmt = $db->prepare("SELECT * FROM purchase_order_items WHERE po_id = :id");
     $stmt->execute([':id' => $po_id]);
     $poItems       = $stmt->fetchAll(PDO::FETCH_ASSOC);
     $discrepancies = [];

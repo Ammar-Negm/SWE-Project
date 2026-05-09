@@ -1,6 +1,14 @@
 <?php
 require_once "dad_user.php";
 class Supplier extends User {
+
+    public function getAll()
+{
+    $sql = "SELECT * FROM supplier ORDER BY supplier_id DESC";
+    $stmt = $this->db->prepare($sql);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
     public function create($perf_score) {
         $sql = "INSERT INTO supplier (name, email, password, perf_score) 
                 VALUES (:name, :email, :password, :perf_score)";

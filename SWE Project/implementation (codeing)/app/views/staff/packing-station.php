@@ -17,7 +17,6 @@
   <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Staff/picking"><i class="bi bi-list-check"></i> Batch Pick List</a>
   <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Staff/packing"><i class="bi bi-box-seam"></i> Packing Station</a>
   <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Staff/qc"><i class="bi bi-shield-check"></i> QC Inspection</a>
-
 </nav>
     <div class="user-info mt-auto">
       <i class="bi bi-person-circle"></i> Logged in as: <span class="php-dynamic text-success">Floor Staff</span>
@@ -65,82 +64,40 @@
             <h5 class="fw-bold text-primary-custom php-dynamic">Medium (30x25x20 cm)</h5>
           </div>
 
-<div class="card p-4">
-  <h6 class="fw-bold text-muted mb-3">Packed Weight Validator</h6>
-
-  <form method="POST" action="<?= BASE_URL ?>index.php?url=Staff/validateWeight">
-
-    <div class="mb-3 text-center">
-      <p class="mb-1 text-muted">
-        Expected:
-        <span class="fw-bold text-dark php-dynamic">1.2 kg</span>
-      </p>
+          <div class="card p-4">
+            <h6 class="fw-bold text-muted mb-3">Packed Weight Validator</h6>
+            <form method="POST" action="<?= BASE_URL ?>index.php?url=Staff/validateWeight">
+              <div class="mb-3 text-center">
+                <p class="mb-1 text-muted">Expected: <span class="fw-bold text-dark php-dynamic">1.2 kg</span></p>
+              </div>
+              <div class="input-group mb-3">
+                <input type="number" step="0.01" class="form-control" name="actual_weight" placeholder="Scale weight" required>
+                <span class="input-group-text">kg</span>
+                <button class="btn btn-outline-secondary" type="button">Read Scale</button>
+              </div>
+              <button type="submit" class="btn btn-primary w-100 mb-3">Validate Weight</button>
+            </form>
+            
+            <hr>
+            <form method="POST" action="<?= BASE_URL ?>index.php?url=Staff/generateLabel">
+              <input type="hidden" name="order_id" value="<?= htmlspecialchars($packingItems[0]['picktask_id'] ?? '') ?>">
+              <button type="button" class="btn btn-success w-100" data-bs-toggle="modal" data-bs-target="#labelModal">
+                <i class="bi bi-printer"></i> Generate Shipping Label
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
     </div>
-
-    <div class="input-group mb-3">
-      <input type="number"
-             step="0.01"
-             class="form-control"
-             name="actual_weight"
-             placeholder="Scale weight"
-             required>
-
-      <span class="input-group-text">kg</span>
-
-      <button class="btn btn-outline-secondary" type="button">
-        Read Scale
-      </button>
-    </div>
-
-    <button type="submit" class="btn btn-primary w-100 mb-3">
-      Validate Weight
-    </button>
-
-  </form>
-
-  <?php if(isset($_GET['status']) && $_GET['status'] == 'validated'): ?>
-    <div class="alert alert-success alert-dismissible fade show">
-      Weight validated successfully.
-      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-  <?php endif; ?>
-<?php if(isset($_GET['status']) && $_GET['status'] == 'invalid'): ?>
-  <div class="alert alert-danger alert-dismissible fade show">
-    Weight mismatch detected.
-    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-  </div>
-<?php endif; ?>
-  <hr>
-
-  <form method="POST" action="<?= BASE_URL ?>index.php?url=Staff/validateWeight">
-
-    <input type="hidden" name="order_id" value="ORD-88421">
-
-<?php if(isset($_GET['status']) && $_GET['status'] == 'validated'): ?>
-
-<button type="button"
-        class="btn btn-success w-100"
-        data-bs-toggle="modal"
-        data-bs-target="#labelModal">
-
-    <i class="bi bi-printer"></i> Generate Shipping Label
-</button>
-
-<?php endif; ?>
-
-  </form>
+  </main>
 </div>
+
 <div class="modal fade" id="labelModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
-
       <div class="modal-header">
         <h5 class="modal-title">Shipping Label Generated</h5>
-
-        <button type="button"
-                class="btn-close"
-                data-bs-dismiss="modal">
-        </button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body text-center">
         <div class="border p-4 d-inline-block text-start w-100 bg-white" style="border: 2px dashed #000 !important;">

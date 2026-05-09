@@ -42,7 +42,7 @@ $suppliers = $data['suppliers'] ?? [];
         <h4 class="mb-0 fw-bold">Procurement & Orders</h4>
       </div>
       <div class="d-flex align-items-center gap-3">
-        <a href="index.php?url=Auth/logout" class="btn btn-outline-danger btn-sm">Logout</a>
+        <a href="<?= BASE_URL ?>index.php?url=Auth/logout" class="btn btn-outline-danger btn-sm">Logout</a>
       </div>
     </nav>
 
@@ -87,14 +87,20 @@ $suppliers = $data['suppliers'] ?? [];
               <?php else: ?>
                 <?php foreach($orders as $o): ?>
                 <tr>
-                  <td><strong><?= htmlspecialchars($o['po_number']) ?></strong></td>
-                  <td><?= htmlspecialchars($o['supplier_name']) ?></td>
-                  <td>$<?= number_format($o['total_value'], 2) ?></td>
-                  <td><?= isset($o['order_date']) ? date('M d, Y', strtotime($o['order_date'])) : 'N/A' ?></td>
-                  <td><?= isset($o['expected_delivery_date']) ? date('M d, Y', strtotime($o['expected_delivery_date'])) : 'N/A' ?></td>
+                  <td>
+                    <strong><?= htmlspecialchars($o['po_number'] ?? ('PO-' . ($o['po_id'] ?? 'N/A'))) ?></strong>
+                  </td>
+                  <td><?= htmlspecialchars($o['supplier_name'] ?? 'N/A') ?></td>
+                  <td>$<?= number_format((float)($o['total_value'] ?? 0), 2) ?></td>
+                  <td>
+                    <?= !empty($o['order_date']) ? date('M d, Y', strtotime($o['order_date'])) : 'N/A' ?>
+                  </td>
+                  <td>
+                    <?= !empty($o['expected_delivery_date']) ? date('M d, Y', strtotime($o['expected_delivery_date'])) : 'N/A' ?>
+                  </td>
                   <td>
                     <?php
-                      $status = strtolower($o['status']);
+                      $status = strtolower($o['status'] ?? 'unknown');
                       $badge = match($status) {
                         'pending'    => 'warning text-dark',
                         'shipped'    => 'info text-dark',
@@ -103,10 +109,12 @@ $suppliers = $data['suppliers'] ?? [];
                         default      => 'secondary'
                       };
                     ?>
-                    <span class="badge bg-<?= $badge ?>"><?= ucfirst($o['status']) ?></span>
+                    <span class="badge bg-<?= $badge ?>">
+                      <?= ucfirst($o['status'] ?? 'Unknown') ?>
+                    </span>
                   </td>
                   <td>
-                    <a href="index.php?url=Manager/viewPO/<?= $o['po_id'] ?>" class="btn btn-sm btn-outline-secondary">
+                    <a href="<?= BASE_URL ?>index.php?url=Manager/viewPO/<?= $o['po_id'] ?? 0 ?>" class="btn btn-sm btn-outline-secondary">
                       <i class="bi bi-eye"></i>
                     </a>
                   </td>
@@ -129,7 +137,7 @@ $suppliers = $data['suppliers'] ?? [];
         <h5 class="modal-title fw-bold">Generate Purchase Order</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
-      <form method="POST" action="index.php?url=Manager/generatePO">
+      <form method="POST" action="<?= BASE_URL ?>index.php?url=Manager/generatePO">
         <div class="modal-body">
           <div class="mb-3">
             <label class="form-label">Supplier</label>

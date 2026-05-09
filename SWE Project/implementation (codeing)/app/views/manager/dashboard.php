@@ -60,13 +60,13 @@ error_reporting(E_ALL);
     <div class="col-md-3">
       <div class="card p-3">
         <h6 class="text-muted">Total SKUs</h6>
-        <h3 class="fw-bold"><?= number_format($data['totalSKUs']) ?></h3>
+        <h3 class="fw-bold"><?= number_format($totalSKUs ?? 0) ?></h3>
       </div>
     </div>
     <div class="col-md-3">
       <div class="card p-3">
         <h6 class="text-muted">Open Purchase Orders</h6>
-        <h3 class="fw-bold"><?= $data['openPOs'] ?></h3>
+        <h3 class="fw-bold"><?= $openPOs ?? 0 ?></h3>
       </div>
     </div>
 
@@ -86,7 +86,8 @@ error_reporting(E_ALL);
                   </tr>
                 </thead>
                 <tbody>
-                  <?php foreach($data['alerts'] as $alert): ?>
+                  <?php if (!empty($alerts)): ?>
+                    <?php foreach($alerts as $alert): ?>
                   <tr>
                     <td><span class="php-dynamic"><?= $alert['zone_name'] ?></span></td>
                     <td><span class="php-dynamic"><?= $alert['SKU'] ?> (<?= $alert['name'] ?>)</span></td>
@@ -94,7 +95,12 @@ error_reporting(E_ALL);
                     <td><span class="badge bg-warning text-dark">Warning</span></td>
                     <td><span class="php-dynamic">Just now</span></td>
                   </tr>
-                  <?php endforeach; ?>
+                    <?php endforeach; ?>
+                    <?php else: ?>
+                      <tr>
+                        <td colspan="5" class="text-center text-muted">No inventory alerts found.</td>
+                      </tr>
+                    <?php endif; ?>
                 </tbody>
               </table>
             </div>
@@ -105,62 +111,46 @@ error_reporting(E_ALL);
           <div class="card p-4 mb-4">
             <h5 class="fw-bold mb-3">Active Floor Staff</h5>
             <ul class="list-group list-group-flush">
-              <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                <div>
-                  <span class="pulse-dot pulse-green me-2"></span>
-                  <span class="php-dynamic fw-bold">Ahmed Ali</span>
-                  <div class="small text-muted php-dynamic">Picking Order #BPG-0047</div>
-                </div>
-              </li>
-              <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                <div>
-                  <span class="pulse-dot pulse-green me-2"></span>
-                  <span class="php-dynamic fw-bold">Sara Kamal</span>
-                  <div class="small text-muted php-dynamic">Packing Station 2</div>
-                </div>
-              </li>
-              <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                <div>
-                  <span class="pulse-dot pulse-green me-2"></span>
-                  <span class="php-dynamic fw-bold">Omar Tarek</span>
-                  <div class="small text-muted php-dynamic">QC Inspection Dock A</div>
-                </div>
-              </li>
-              <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                <div>
-                  <span class="pulse-dot pulse-red me-2"></span>
-                  <span class="php-dynamic fw-bold">Mona Zaki</span>
-                  <div class="small text-muted php-dynamic">On Break</div>
-                </div>
-              </li>
-              </ul>
+              <?php if (!empty($activeStaff)): ?>
+                <?php foreach ($activeStaff as $staff): ?>
+                  <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                    <div>
+                      <span class="pulse-dot pulse-green me-2"></span>
+                      <span class="fw-bold"><?= htmlspecialchars($staff['name']) ?></span>
+                      <div class="small text-muted">
+                        <?= htmlspecialchars($staff['status'] ?? 'Active') ?>
+                        <?php if (!empty($staff['order_id'])): ?>
+                          - Order #<?= htmlspecialchars($staff['order_id']) ?>
+                        <?php endif; ?>
+                      </div>
+                    </div>
+                  </li>
+                <?php endforeach; ?>
+              <?php else: ?>
+                <li class="list-group-item px-0 text-muted">No active staff found.</li>
+              <?php endif; ?>
+            </ul>
           </div>
 
           <div class="card p-4">
             <h5 class="fw-bold mb-3">Upcoming Reorders</h5>
             <ul class="list-group list-group-flush">
-              <li class="list-group-item px-0">
-                <div class="d-flex justify-content-between">
-                  <span class="php-dynamic fw-bold">SKU-00445</span>
-                  <span class="badge bg-warning text-dark php-dynamic">Due in 2 days</span>
-                </div>
-                <div class="small text-muted php-dynamic">Supplier: AlphaParts Ltd.</div>
-              </li>
-              <li class="list-group-item px-0">
-                <div class="d-flex justify-content-between">
-                  <span class="php-dynamic fw-bold">SKU-00112</span>
-                  <span class="badge bg-danger php-dynamic">Due Today</span>
-                </div>
-                <div class="small text-muted php-dynamic">Supplier: FreshFarm Co.</div>
-              </li>
-              <li class="list-group-item px-0">
-                <div class="d-flex justify-content-between">
-                  <span class="php-dynamic fw-bold">SKU-00891</span>
-                  <span class="badge bg-secondary php-dynamic">Due in 5 days</span>
-                </div>
-                <div class="small text-muted php-dynamic">Supplier: ChemSupply Inc.</div>
-              </li>
-              </ul>
+              <?php if (!empty($upcomingReorders)): ?>
+                <?php foreach ($upcomingReorders as $item): ?>
+                  <li class="list-group-item px-0">
+                    <div class="d-flex justify-content-between">
+                      <span class="fw-bold"><?= htmlspecialchars($item['SKU']) ?></span>
+                      <span class="badge bg-warning text-dark">Reorder Soon</span>
+                    </div>
+                    <div class="small text-muted">
+                      Supplier: <?= htmlspecialchars($item['supplier_name'] ?? 'N/A') ?>
+                    </div>
+                  </li>
+                <?php endforeach; ?>
+              <?php else: ?>
+                <li class="list-group-item px-0 text-muted">No upcoming reorders.</li>
+              <?php endif; ?>
+            </ul>
           </div>
         </div>
       </div>

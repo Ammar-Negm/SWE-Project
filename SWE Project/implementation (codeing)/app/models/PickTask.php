@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/InventoryItem.php';
+require_once __DIR__ . '/AuditLog.php';
 class PickTask {
     private $db;
 

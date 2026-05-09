@@ -176,5 +176,23 @@ class Bin
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function getBinsWithZones()
+{
+    $sql = "SELECT 
+                b.bin_id,
+                b.zone_id,
+                b.maxWeight,
+                b.currentWeight,
+                b.shelfLocation,
+                z.zone_name
+            FROM bin b
+            LEFT JOIN zone z ON b.zone_id = z.zone_id
+            ORDER BY z.zone_name, b.shelfLocation";
+
+    $stmt = $this->db->prepare($sql);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
 }
 ?>

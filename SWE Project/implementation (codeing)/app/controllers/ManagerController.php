@@ -9,10 +9,16 @@ class ManagerController extends Controller
 
     
         public function __construct()
-        {
-            $this->adminModel   = new AdminModel();
-            $this->productModel = new ProductModel();
-        }
+{
+    if (!isset($_SESSION['role']) || strtolower($_SESSION['role']) !== 'manager') {
+        header('Location: index.php?url=Auth/login');
+        exit;
+    }
+
+    $this->adminModel   = new AdminModel();
+    $this->productModel = new ProductModel();
+}
+
 
     // public function __construct()
     // {
@@ -44,7 +50,7 @@ class ManagerController extends Controller
         // الأوردرات المفتوحة (Purchase Orders)
         require_once __DIR__ . "/../models/PurchaseOrder.php";
         $poModel = new PurchaseOrder();
-        $openPOs = count($poModel->getByStatus('Pending') ?? []);
+        $openPOs = count($poModel->getByStatus('pending') ?? []);
 
         // 2. الموظفين النشطين (Active Staff)
         require_once __DIR__ . "/../models/PickList.php";
@@ -158,20 +164,36 @@ public function viewPO($id)
     }
 
     public function supplier()
-    {
-        $this->view("manager/supplier-list");
-    }
+{
+    require_once __DIR__ . "/../models/Supplier.php";
+    $s = new Supplier();
+    $suppliers = method_exists($s, 'getAll') ? $s->getAll() : [];
+
+    $this->view("manager/supplier-list", ['suppliers' => $suppliers]);
+}
 
     public function zonalOptimizer()
-    {
-        $this->view("manager/zonal-optimizer");
-    }
+{
+    require_once __DIR__ . "/../models/zone.php";
+    require_once __DIR__ . "/../models/bin.php";
+
+    $zoneModel = new Zone();
+    $binModel  = new Bin();
+
+    $zones = $zoneModel->getAll();
+    $bins  = $binModel->getAll();
+
+    $this->view("manager/zonal-optimizer", [
+        'zones' => $zones,
+        'bins'  => $bins
+    ]);
+}
 
     public function systemAdmin()
-    {
-        $users = $this->adminModel->getAllUsers();
-        $this->view("manager/system-admin", ['users' => $users]);
-    }
+{
+    $users = $this->adminModel->getAllUsers();
+    $this->view("manager/system-admin", ['users' => $users]);
+}
     public function adduser()
     {
         $this->view("manager/add-user");
@@ -426,22 +448,32 @@ public function deleteBin($id)
     exit;
 }
 public function addSupplier()
-    {
-        require_once __DIR__ . "/../models/Supplier.php";
+{
+    require_once __DIR__ . "/../models/Supplier.php";
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $s = new Supplier(
-                trim($_POST['name']     ?? ''),
-                trim($_POST['email']    ?? ''),
-                trim($_POST['password'] ?? '')
-            );
-            $s->create($_POST['perf_score'] ?? 0);
-            header('Location: index.php?url=Manager/listSuppliers');
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $name  = trim($_POST['name'] ?? '');
+        $email = trim($_POST['email'] ?? '');
+
+        if ($name === '' || $email === '') {
+            $_SESSION['error'] = "Name and email are required.";
+            header('Location: index.php?url=Manager/supplier');
             exit;
         }
 
-        $this->view("manager/suppliers/create");
+        // بما إن الفورم مفيهوش password حاليًا
+        $defaultPassword = password_hash('123456', PASSWORD_DEFAULT);
+
+        $s = new Supplier($name, $email, $defaultPassword);
+        $s->create(100);
+
+        $_SESSION['success'] = "Supplier added successfully.";
+        header('Location: index.php?url=Manager/supplier');
+        exit;
     }
+
+    $this->view("manager/supplier-list");
+}
 
     public function editSupplier($id)
     {
@@ -559,5 +591,9 @@ public function addSupplier()
             'orders' => $orders
         ]);
     }
+
+
+    
+
 }
 

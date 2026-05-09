@@ -46,7 +46,15 @@ class PurchaseOrder {
         ]);
     }
 public function getAll() {
-    $sql = "SELECT po.*, s.name as supplier_name 
+    $sql = "SELECT 
+                po.po_id,
+                po.po_number,
+                po.status,
+                po.total_value,
+                po.order_date,
+                po.expected_delivery_date,
+                po.supplier_id,
+                s.name as supplier_name
             FROM purchaseorder po
             JOIN supplier s ON po.supplier_id = s.supplier_id
             ORDER BY po.po_id DESC";

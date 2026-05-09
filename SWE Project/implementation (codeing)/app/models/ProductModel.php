@@ -91,10 +91,10 @@ public function getLowStockAlerts() {
 
 // 3. إعادة طلب بضاعة
 public function getUpcomingReorders() {
-    $sql = "SELECT p.SKU, s.name as supplier_name, p.basePrice
+    $sql = "SELECT p.SKU, p.name, p.basePrice
             FROM product p
-            JOIN supplier s ON p.product_id = p.product_id -- عدل الربط ده حسب جدول الموردين عندك
-            WHERE p.minStockLevel > 0 
+            WHERE p.minStockLevel > 0
+            ORDER BY p.minStockLevel DESC
             LIMIT 3";
     $stmt = $this->db->prepare($sql);
     $stmt->execute();

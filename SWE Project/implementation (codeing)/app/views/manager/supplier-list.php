@@ -54,28 +54,40 @@
       </div>
 
       <div class="row">
-        <div class="col-md-4 mb-4">
-          <div class="card p-4 h-100 text-center">
-            <div class="d-flex justify-content-between align-items-start mb-3">
-              <div class="text-start">
-                <h5 class="fw-bold mb-0 php-dynamic">AlphaParts Ltd.</h5>
-                <small class="text-muted"><i class="bi bi-envelope"></i> contact@alphaparts.com</small>
+        <?php if (!empty($suppliers)): ?>
+          <?php foreach ($suppliers as $supplier): ?>
+            <div class="col-md-4 mb-4">
+              <div class="card p-4 h-100 text-center">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                  <div class="text-start">
+                    <h5 class="fw-bold mb-0"><?= htmlspecialchars($supplier['name']) ?></h5>
+                    <small class="text-muted">
+                      <i class="bi bi-envelope"></i> <?= htmlspecialchars($supplier['email']) ?>
+                    </small>
+                  </div>
+                  <div class="circular-progress bg-light shadow-sm">
+                    <span><?= htmlspecialchars($supplier['perf_score'] ?? 100) ?>%</span>
+                  </div>
+                </div>
+                <div class="d-flex justify-content-around bg-light p-2 rounded mb-3">
+                  <div>
+                    <small class="text-muted d-block">Status</small>
+                    <span class="badge bg-success">Active</span>
+                  </div>
+                </div>
+                <div class="d-flex gap-2">
+                  <button class="btn btn-outline-secondary w-50">Profile</button>
+                  <a href="<?= BASE_URL ?>index.php?url=Manager/procurement" class="btn btn-primary w-50">Raise PO</a>
+                </div>
               </div>
-              <div class="circular-progress bg-light shadow-sm">
-                <span class="php-dynamic">98%</span>
-              </div>
             </div>
-            <div class="d-flex justify-content-around bg-light p-2 rounded mb-3">
-              <div><small class="text-muted d-block">Lead Time</small><strong class="php-dynamic">4.2 Days</strong></div>
-              <div><small class="text-muted d-block">Status</small><span class="badge bg-success">Active</span></div>
-            </div>
-            <div class="d-flex gap-2">
-              <button class="btn btn-outline-secondary w-50">Profile</button>
-              <a href="<?= BASE_URL ?>index.php?url=Manager/supplier" class="btn btn-primary w-50">Raise PO</a>
-            </div>
+          <?php endforeach; ?>
+        <?php else: ?>
+          <div class="col-12">
+            <div class="alert alert-info">No suppliers found.</div>
           </div>
-        </div>
-        </div>
+        <?php endif; ?>
+      </div>
     </div>
     <div class="modal fade" id="addSupplierModal" tabindex="-1">
     <div class="modal-dialog">

@@ -31,7 +31,7 @@
         <h4 class="mb-0 fw-bold">Client Directory</h4>
       </div>
       <div class="d-flex align-items-center gap-3">
-        <a href="index.php?url=Auth/logout" class="btn btn-outline-danger btn-sm">Logout</a>
+        <a href="<?= BASE_URL ?>index.php?url=Auth/logout" class="btn btn-outline-danger btn-sm">Logout</a>
         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addClientModal"><i class="bi bi-plus-lg"></i> Add New Client</button>
       </div>
     </nav>
@@ -46,17 +46,32 @@
               </tr>
             </thead>
             <tbody>
+              <?php if (!empty($clients)): ?>
+              <?php foreach ($clients as $client): ?>
+                <tr>
+                  <td><?= htmlspecialchars($client['client_id'] ?? 'N/A') ?></td>
+                  <td><span class="fw-bold"><?= htmlspecialchars($client['name'] ?? 'N/A') ?></span></td>
+                  <td><?= htmlspecialchars($client['shipping_address'] ?? 'N/A') ?></td>
+                  <td><?= htmlspecialchars($client['client_type'] ?? 'N/A') ?></td>
+                  <td>N/A</td>
+                  <td><span class="badge bg-success">Active</span></td>
+                  <td>
+                    <a href="<?= BASE_URL ?>index.php?url=Manager/clientHistory/<?= $client['client_id'] ?? 0 ?>" class="btn btn-sm btn-outline-primary">
+                      <i class="bi bi-eye"></i> View History
+                    </a>
+                    <a href="<?= BASE_URL ?>index.php?url=Manager/deleteClient/<?= $client['client_id'] ?? 0 ?>" 
+                      class="btn btn-sm btn-outline-danger"
+                      onclick="return confirm('Delete this client?')">
+                      <i class="bi bi-trash"></i>
+                    </a>
+                  </td>
+                </tr>
+              <?php endforeach; ?>
+            <?php else: ?>
               <tr>
-                <td><span class="php-dynamic">CL-101</span></td>
-                <td><span class="php-dynamic fw-bold">Hameed Retail Stores</span></td>
-                <td><span class="php-dynamic">info@hameed-retail.com</span></td>
-                <td><span class="php-dynamic">15</span></td>
-                <td><span class="php-dynamic">2026-05-01</span></td>
-                <td><span class="badge bg-success">Active</span></td>
-                <td>
-                  <button class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i> View History</button>
-                </td>
+                <td colspan="7" class="text-center text-muted py-4">No clients found.</td>
               </tr>
+            <?php endif; ?>
               </tbody>
           </table>
         </div>
@@ -68,15 +83,30 @@
 <div class="modal fade" id="addClientModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
-      <form method="POST" action="<?= BASE_URL ?>index.php?url=Manager/add_client">
+      <form method="POST" action="<?= BASE_URL ?>index.php?url=Manager/addClient">
         <div class="modal-header">
           <h5 class="modal-title fw-bold">Register New Client</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <div class="mb-3"><label class="form-label">Client/Company Name</label><input type="text" class="form-control" name="name" required></div>
-          <div class="mb-3"><label class="form-label">Contact Email</label><input type="email" class="form-control" name="email" required></div>
-          <div class="mb-3"><label class="form-label">Address</label><textarea class="form-control" name="address"></textarea></div>
+          <div class="mb-3">
+            <label class="form-label">Client/Company Name</label>
+            <input type="text" class="form-control" name="name" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Shipping Address</label>
+            <textarea class="form-control" name="shipping_address" required></textarea>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Client Type</label>
+            <select class="form-select" name="client_type">
+              <option value="Regular">Regular</option>
+              <option value="VIP">VIP</option>
+              <option value="Corporate">Corporate</option>
+            </select>
+          </div>
         </div>
         <div class="modal-footer">
           <button type="submit" class="btn btn-primary">Save Client</button>
