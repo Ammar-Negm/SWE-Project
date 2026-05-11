@@ -59,7 +59,7 @@ public function getAll() {
             JOIN supplier s ON po.supplier_id = s.supplier_id
             ORDER BY po.po_id DESC";
     $stmt = $this->db->prepare($sql);
-    $stmt->execute();
+ $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
