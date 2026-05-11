@@ -77,75 +77,127 @@ class ManagerController extends Controller
     }
 
    public function inventory()
-    {
-        $db = Database::getInstance()->getConnection();
-        
-        // 1. Query احترافي يجمع بيانات المنتج مع تفاصيل المخزن
-        $sql = "SELECT 
-                    p.product_id, 
-                    p.SKU, 
-                    p.name, 
-                    p.basePrice, 
-                    p.minStockLevel,
-                    p.category as prod_cat,
-                    IFNULL(SUM(ii.quantity), 0) as total_available,
-                    GROUP_CONCAT(DISTINCT z.zone_name SEPARATOR ', ') as zones
-                FROM product p
-                LEFT JOIN inventory_item ii ON p.product_id = ii.product_id
-                LEFT JOIN bin b ON ii.bin_id = b.bin_id
-                LEFT JOIN zone z ON b.zone_id = z.zone_id
-                GROUP BY p.product_id
-                ORDER BY p.product_id DESC";
+{
+    $db = Database::getInstance()->getConnection();
 
-        $stmt = $db->prepare($sql);
-        $stmt->execute();
-        $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $sql = "SELECT 
+                p.product_id,
+                p.SKU,
+                p.name,
+                p.basePrice,
+                p.minStockLevel,
+                p.category AS prod_cat,
+                COALESCE(SUM(ii.quantity), 0) AS total_available,
+                COALESCE(GROUP_CONCAT(DISTINCT z.zone_name SEPARATOR ', '), 'Not Assigned') AS zones
+            FROM product p
+            LEFT JOIN inventory_item ii ON p.product_id = ii.product_id
+            LEFT JOIN bin b ON ii.bin_id = b.bin_id
+            LEFT JOIN zone z ON b.zone_id = z.zone_id
+            GROUP BY p.product_id, p.SKU, p.name, p.basePrice, p.minStockLevel, p.category
+            ORDER BY p.product_id DESC";
 
-        // 2. جلب البنات المتاحة مع اسم الزون عشان تظهر في الـ Modal
-        require_once __DIR__ . "/../models/bin.php";
-        $binModel = new Bin();
-        $bins = $binModel->getBinsWithZoneNames();
+    $stmt = $db->prepare($sql);
+    $stmt->execute();
+    $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // 3. إرسال البيانات للـ View مرة واحدة فقط
-        $this->view("manager/inventory", [
-            'products' => $products,
-            'bins'     => $bins
-        ]);
-    }
+    require_once __DIR__ . "/../models/bin.php";
+    $binModel = new Bin();
+    $bins = $binModel->getBinsWithZoneNames();
+
+    $this->view("manager/inventory", [
+        'products' => $products,
+        'bins'     => $bins
+    ]);
+}
 
 // عدّل الموجودة
 public function procurement()
 {
     require_once __DIR__ . "/../models/PurchaseOrder.php";
+    require_once __DIR__ . "/../models/ProductModel.php";
+
     $poModel = new PurchaseOrder();
+    $productModel = new ProductModel();
+
     $orders    = $poModel->getAll();
     $suppliers = $poModel->getAllSuppliers();
+    $products  = $productModel->getAll();
+
     $this->view("manager/procurement", [
         'orders'    => $orders,
-        'suppliers' => $suppliers
+        'suppliers' => $suppliers,
+        'products'  => $products
     ]);
 }
-
 // أضف جديدة
 public function generatePO()
 {
     require_once __DIR__ . "/../models/PurchaseOrder.php";
+
     $poModel = new PurchaseOrder();
+    $db = Database::getInstance()->getConnection();
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $supplier_id   = $_POST['supplier_id']   ?? '';
-        $expected_date = $_POST['expected_date'] ?? null;
-        $total_value   = $_POST['total_value']   ?? 0;
-        $po_number     = $poModel->generatePoNumber();
+        $supplier_id      = $_POST['supplier_id'] ?? '';
+        $expected_date    = $_POST['expected_date'] ?? null;
+        $product_id       = $_POST['product_id'] ?? '';
+        $quantity_ordered = (int)($_POST['quantity_ordered'] ?? 0);
+        $unit_price       = (float)($_POST['unit_price'] ?? 0);
+        $total_value      = $quantity_ordered * $unit_price;
+        $po_number        = $poModel->generatePoNumber();
 
-        $poModel->createFull($po_number, $supplier_id, $expected_date, $total_value);
+        try {
+            $db->beginTransaction();
 
-        header('Location: index.php?url=Manager/procurement');
-        exit;
+            // 1) create purchase order
+            $stmt = $db->prepare("
+                INSERT INTO purchaseorder
+                (po_number, supplier_id, expected_delivery_date, total_value, status, order_date)
+                VALUES (:po_number, :supplier_id, :expected_date, :total_value, 'pending', NOW())
+            ");
+            $stmt->execute([
+                ':po_number'     => $po_number,
+                ':supplier_id'   => $supplier_id,
+                ':expected_date' => $expected_date,
+                ':total_value'   => $total_value
+            ]);
+
+            $po_id = $db->lastInsertId();
+
+            // 2) add item
+            $stmt = $db->prepare("
+                INSERT INTO purchase_order_items
+                (po_id, product_id, quantity_ordered, unit_price)
+                VALUES (:po_id, :product_id, :quantity_ordered, :unit_price)
+            ");
+            $stmt->execute([
+                ':po_id'            => $po_id,
+                ':product_id'       => $product_id,
+                ':quantity_ordered' => $quantity_ordered,
+                ':unit_price'       => $unit_price
+            ]);
+
+            $db->commit();
+
+            header('Location: index.php?url=Manager/procurement');
+            exit;
+
+        } catch (Exception $e) {
+            $db->rollBack();
+            die($e->getMessage());
+        }
     }
 
+    require_once __DIR__ . "/../models/ProductModel.php";
+    $productModel = new ProductModel();
+
     $suppliers = $poModel->getAllSuppliers();
-    $this->view("manager/procurement", ['suppliers' => $suppliers]);
+    $products  = $productModel->getAll();
+
+    $this->view("manager/procurement", [
+        'suppliers' => $suppliers,
+        'products'  => $products
+    ]);
 }
 
 
@@ -195,9 +247,10 @@ public function viewPO($id)
     $this->view("manager/system-admin", ['users' => $users]);
 }
     public function adduser()
-    {
-        $this->view("manager/add-user");
-    }
+{
+    header('Location: index.php?url=Manager/add_user');
+    exit;
+}
 
     /* ======================
         USER MANAGEMENT
@@ -274,42 +327,47 @@ public function viewPO($id)
   public function editProduct($id = null)
 {
     if (!$id) {
-        $products = $this->productModel->getAll();
-        $this->view("manager/inventory", [
-            'products' => $products,
-            'error'    => "Product ID is required."
-        ]);
-        return;
-    }
-
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $this->productModel->update($id, [
-            'sku'      => $_POST['sku']      ?? '',
-            'name'     => $_POST['name']     ?? '',
-            'price'    => $_POST['price']    ?? 0,
-            'category' => $_POST['category'] ?? '',
-            'minStock' => $_POST['minStock'] ?? 0,
-        ]);
-
         header('Location: index.php?url=Manager/inventory');
         exit;
     }
 
-    $products = $this->productModel->getAll();
-    $product  = $this->productModel->getById($id);
-    $this->view("manager/inventory", [
-        'products' => $products,
-        'product'  => $product
-    ]);
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $updated = $this->productModel->update($id, [
+            'sku'      => $_POST['sku'] ?? '',
+            'name'     => $_POST['name'] ?? '',
+            'price'    => $_POST['price'] ?? 0,
+            'category' => $_POST['category'] ?? '',
+            'minStock' => $_POST['minStock'] ?? 0,
+        ]);
+
+        if ($updated) {
+            header('Location: index.php?url=Manager/inventory&success=1');
+        } else {
+            header('Location: index.php?url=Manager/inventory&error=1');
+        }
+        exit;
+    }
+
+    header('Location: index.php?url=Manager/inventory');
+    exit;
 }
 
 public function deleteProduct($id)
 {
-    $this->productModel->delete($id);
-    header('Location: index.php?url=Manager/inventory'); // غيّر listProducts لـ inventory
+    if (!$id) {
+        header('Location: index.php?url=Manager/inventory&error=1');
+        exit;
+    }
+
+    $deleted = $this->productModel->delete($id);
+
+    if ($deleted) {
+        header('Location: index.php?url=Manager/inventory&success=1');
+    } else {
+        header('Location: index.php?url=Manager/inventory&error=1');
+    }
     exit;
 }
-
 
     /* ======================
     ZONES
@@ -496,6 +554,10 @@ public function addSupplier()
     }
     public function add_user()
 {
+    require_once __DIR__ . "/../models/zone.php";
+    $zoneModel = new Zone();
+    $zones = $zoneModel->getAll();
+
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $role     = $_POST['role'] ?? '';
         $name     = trim($_POST['name'] ?? '');
@@ -506,11 +568,22 @@ public function addSupplier()
         if ($role === 'staff') {
             require_once __DIR__ . "/../models/FloorStaff.php";
             $u = new FloorStaff($name, $email, $password);
-            $u->create(
-                $_POST['shift_start'] ?? '08:00:00',
-                $_POST['shift_end']   ?? '16:00:00',
-                0
-            );
+
+            $shift_start  = $_POST['shift_start'] ?? '08:00:00';
+            $primary_zone = $_POST['primary_zone'] ?? null;
+
+            if ($shift_start === '08:00:00') {
+                $shift_end = '16:00:00';
+            } elseif ($shift_start === '16:00:00') {
+                $shift_end = '00:00:00';
+            } elseif ($shift_start === '00:00:00') {
+                $shift_end = '08:00:00';
+            } else {
+                $shift_end = '16:00:00';
+            }
+
+            $u->create($shift_start, $shift_end, 0, $primary_zone);
+
         } elseif ($role === 'supplier') {
             require_once __DIR__ . "/../models/Supplier.php";
             $s = new Supplier($name, $email, $password);
@@ -521,8 +594,10 @@ public function addSupplier()
         exit;
     }
 
-    $this->view("manager/add-user");
-    }
+    $this->view("manager/add-user", [
+        'zones' => $zones
+    ]);
+}
     
     /* ======================
         CLIENT MANAGEMENT (Updated for Your Model)

@@ -40,16 +40,48 @@ class InventoryItem {
 
     // UNCHANGED — create()
     public function create($product_id, $bin_id, $quantity, $status = 'Available') {
-        $sql = "INSERT INTO inventory_item (product_id, bin_id, quantity, status)
-                VALUES (:product_id, :bin_id, :quantity, :status)";
-        $stmt = $this->db->prepare($sql);
-        return $stmt->execute([
-            ":product_id" => $product_id,
-            ":bin_id"     => $bin_id,
-            ":quantity"   => $quantity,
-            ":status"     => $status
+    // هل المنتج موجود بالفعل في نفس الـ bin؟
+    $check = $this->db->prepare("
+        SELECT inv_item_id, quantity 
+        FROM inventory_item 
+        WHERE product_id = :product_id AND bin_id = :bin_id
+        LIMIT 1
+    ");
+    $check->execute([
+        ":product_id" => $product_id,
+        ":bin_id"     => $bin_id
+    ]);
+
+    $existing = $check->fetch(PDO::FETCH_ASSOC);
+
+    if ($existing) {
+        // لو موجود، حدّث الكمية بدل insert
+        $newQty = (int)$existing['quantity'] + (int)$quantity;
+
+        $update = $this->db->prepare("
+            UPDATE inventory_item
+            SET quantity = :quantity, status = :status
+            WHERE inv_item_id = :id
+        ");
+
+        return $update->execute([
+            ":quantity" => $newQty,
+            ":status"   => $status,
+            ":id"       => $existing['inv_item_id']
         ]);
     }
+
+    // لو مش موجود، اعمل insert جديد
+    $sql = "INSERT INTO inventory_item (product_id, bin_id, quantity, status)
+            VALUES (:product_id, :bin_id, :quantity, :status)";
+    $stmt = $this->db->prepare($sql);
+    return $stmt->execute([
+        ":product_id" => $product_id,
+        ":bin_id"     => $bin_id,
+        ":quantity"   => $quantity,
+        ":status"     => $status
+    ]);
+}
 
     // UNCHANGED — getById()
     public function getById($id) {

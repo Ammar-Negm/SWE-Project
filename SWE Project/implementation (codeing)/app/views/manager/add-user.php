@@ -18,7 +18,6 @@
     <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Manager/zonaloptimizer"><i class="bi bi-layers"></i> Zonal Optimizer</a>
     <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Manager/procurement"><i class="bi bi-cart3"></i> Procurement</a>
     <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Manager/supplier"><i class="bi bi-truck"></i> Suppliers</a>
-    <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Manager/analytics"><i class="bi bi-graph-up"></i> Analytics</a>
     <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Manager/clients"><i class="bi bi-people"></i> Clients</a>
     <a class="nav-link active" href="<?= BASE_URL ?>index.php?url=Manager/add-user"><i class="bi bi-person-plus"></i> Add User</a>
     <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Manager/systemadmin"><i class="bi bi-gear"></i> System Admin</a>
@@ -96,9 +95,14 @@
                 <div class="col-md-6">
                 <label class="form-label">Primary Zone</label>
                 <select class="form-select" name="primary_zone">
-                    <option value="A">Zone A</option>
-                    <option value="B">Zone B</option>
-                    <option value="C">Zone C</option>
+                    <option value="" selected disabled>Select Zone...</option>
+                    <?php if (!empty($zones)): ?>
+                        <?php foreach ($zones as $zone): ?>
+                            <option value="<?= htmlspecialchars($zone['zone_name']) ?>">
+                                <?= htmlspecialchars($zone['zone_name']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
                 </select>
                 </div>
             </div>

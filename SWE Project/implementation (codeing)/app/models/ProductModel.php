@@ -1,4 +1,4 @@
- <?php
+<?php
 
 class ProductModel
 {
@@ -27,10 +27,9 @@ class ProductModel
     {
         $stmt = $this->db->prepare(
             "INSERT INTO product (SKU, name, basePrice, category, minStockLevel)
-            VALUES (:sku, :name, :price, :category, :minStock)"
+             VALUES (:sku, :name, :price, :category, :minStock)"
         );
-        
-        // 1. Execute the query WITHOUT 'return'
+
         $stmt->execute([
             ':sku'      => $data['sku'],
             ':name'     => $data['name'],
@@ -39,17 +38,21 @@ class ProductModel
             ':minStock' => $data['minStock'],
         ]);
 
-        // 2. Now properly return the newly generated product_id
         return $this->db->lastInsertId();
     }
 
     public function update($id, $data)
     {
         $stmt = $this->db->prepare(
-            "UPDATE product 
-             SET SKU=:sku, name=:name, basePrice=:price, category=:category, minStockLevel=:minStock
+            "UPDATE product
+             SET SKU = :sku,
+                 name = :name,
+                 basePrice = :price,
+                 category = :category,
+                 minStockLevel = :minStock
              WHERE product_id = :id"
         );
+
         return $stmt->execute([
             ':id'       => $id,
             ':sku'      => $data['sku'],
@@ -62,42 +65,54 @@ class ProductModel
 
     public function delete($id)
     {
-        $stmt = $this->db->prepare("DELETE FROM product WHERE product_id = :id");
-        return $stmt->execute([':id' => $id]);
+        try {
+            $this->db->beginTransaction();
+
+            // احذف السجلات المرتبطة في inventory_item أولاً
+            $stmt1 = $this->db->prepare("DELETE FROM inventory_item WHERE product_id = :id");
+            $stmt1->execute([':id' => $id]);
+
+            // ثم احذف المنتج نفسه
+            $stmt2 = $this->db->prepare("DELETE FROM product WHERE product_id = :id");
+            $stmt2->execute([':id' => $id]);
+
+            $this->db->commit();
+            return true;
+        } catch (PDOException $e) {
+            $this->db->rollBack();
+            return false;
+        }
     }
 
+    public function getCount()
+    {
+        $stmt = $this->db->query("SELECT COUNT(*) as total FROM product");
+        return $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+    }
 
-    // ---------------------------------------------  //
-    
-    // 1. إجمالي عدد الـ SKUs
-public function getCount() {
-    $stmt = $this->db->query("SELECT COUNT(*) as total FROM product");
-    return $stmt->fetch(PDO::FETCH_ASSOC)['total'];
-}
+    public function getLowStockAlerts()
+    {
+        $sql = "SELECT p.name, p.SKU, ii.quantity, p.minStockLevel, z.zone_name
+                FROM product p
+                JOIN inventory_item ii ON p.product_id = ii.product_id
+                JOIN bin b ON ii.bin_id = b.bin_id
+                JOIN zone z ON b.zone_id = z.zone_id
+                WHERE ii.quantity <= p.minStockLevel
+                ORDER BY ii.quantity ASC LIMIT 5";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 
-// 2. تنبيهات النقص (Low Stock)
-public function getLowStockAlerts() {
-    $sql = "SELECT p.name, p.SKU, ii.quantity, p.minStockLevel, z.zone_name 
-            FROM product p
-            JOIN inventory_item ii ON p.product_id = ii.product_id
-            JOIN bin b ON ii.bin_id = b.bin_id
-            JOIN zone z ON b.zone_id = z.zone_id
-            WHERE ii.quantity <= p.minStockLevel
-            ORDER BY ii.quantity ASC LIMIT 5";
-    $stmt = $this->db->prepare($sql);
-    $stmt->execute();
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    public function getUpcomingReorders()
+    {
+        $sql = "SELECT p.SKU, p.name, p.basePrice
+                FROM product p
+                WHERE p.minStockLevel > 0
+                ORDER BY p.minStockLevel DESC
+                LIMIT 3";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }
-
-// 3. إعادة طلب بضاعة
-public function getUpcomingReorders() {
-    $sql = "SELECT p.SKU, p.name, p.basePrice
-            FROM product p
-            WHERE p.minStockLevel > 0
-            ORDER BY p.minStockLevel DESC
-            LIMIT 3";
-    $stmt = $this->db->prepare($sql);
-    $stmt->execute();
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
-} 

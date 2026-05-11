@@ -3,10 +3,10 @@ require_once "dad_user.php";
 
 class FloorStaff extends User
 {
-    public function create($shift_start, $shift_end, $productivity_score)
+    public function create($shift_start, $shift_end, $productivity_score, $primary_zone = null)
     {
-        $sql = "INSERT INTO floorstaff (name, email, password, shift_start, shift_end, productivity_score) 
-                VALUES (:name, :email, :password, :shift_start, :shift_end, :productivity_score)";
+        $sql = "INSERT INTO floorstaff (name, email, password, shift_start, shift_end, productivity_score, primary_zone) 
+                VALUES (:name, :email, :password, :shift_start, :shift_end, :productivity_score, :primary_zone)";
         $stmt = $this->db->prepare($sql);
         return $stmt->execute([
             ":name" => $this->name,
@@ -14,7 +14,8 @@ class FloorStaff extends User
             ":password" => $this->password,
             ":shift_start" => $shift_start,
             ":shift_end" => $shift_end,
-            ":productivity_score" => $productivity_score
+            ":productivity_score" => $productivity_score,
+            ":primary_zone" => $primary_zone
         ]);
     }
 
@@ -72,5 +73,12 @@ class FloorStaff extends User
         $stmt = $this->db->prepare($sql);
         $stmt->execute([':id' => $staff_id]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
+        }
+        public function getByPrimaryZone($zoneName)
+        {
+            $sql = "SELECT * FROM floorstaff WHERE primary_zone = :zone";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([':zone' => $zoneName]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        }
 }

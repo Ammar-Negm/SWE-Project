@@ -7,6 +7,7 @@
 // ============================================================
 require_once __DIR__ . '/InventoryItem.php';
 require_once __DIR__ . '/AuditLog.php';
+require_once __DIR__ . '/patterns/ReorderObserver.php';
 
 class PickTask {
     private $db;
@@ -50,45 +51,63 @@ class PickTask {
     // ★ attaches ReorderObserver before updateQuantity()
     // so if stock drops below min, a PO is created automatically
     public function completeTask($task_id, $staff_id) {
-        $this->db->beginTransaction();
-        try {
-            // 1. get task data
-            $stmt = $this->db->prepare(
-                "SELECT inv_item_id, quantity_to_pick FROM pick_task WHERE picktask_id = :id"
-            );
-            $stmt->execute([':id' => $task_id]);
-            $task = $stmt->fetch(PDO::FETCH_ASSOC);
+    $this->db->beginTransaction();
 
-            // 2. update task status to Picked
-            $stmt = $this->db->prepare("UPDATE pick_task SET status = 'Picked' WHERE picktask_id = :id");
-            $stmt->execute([':id' => $task_id]);
+    try {
+        // 1. get task data
+        $stmt = $this->db->prepare(
+            "SELECT inv_item_id, quantity_to_pick FROM pick_task WHERE picktask_id = :id"
+        );
+        $stmt->execute([':id' => $task_id]);
+        $task = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            // 3. update inventory quantity
-            // ★ attach ReorderObserver — fires automatically if qty drops below min
-            $inventory = new InventoryItem();
-            $inventory->attach(new ReorderObserver());
-
-            $currentItem = $inventory->getById($task['inv_item_id']);
-            $newQty      = $currentItem['quantity'] - $task['quantity_to_pick'];
-            $inventory->updateQuantity($task['inv_item_id'], $newQty);
-
-            // 4. write audit log
-            $audit = new AuditLog();
-            $audit->record(
-                $task['inv_item_id'],
-                'PICKING',
-                -$task['quantity_to_pick'],
-                $staff_id,
-                'staff',
-                $task_id
-            );
-
-            $this->db->commit();
-            return true;
-
-        } catch (Exception $e) {
+        if (!$task) {
             $this->db->rollBack();
             return false;
         }
+
+        // 2. get current inventory item
+        $inventory = new InventoryItem();
+        $currentItem = $inventory->getById($task['inv_item_id']);
+
+        if (!$currentItem) {
+            $this->db->rollBack();
+            return false;
+        }
+
+        $newQty = (int)$currentItem['quantity'] - (int)$task['quantity_to_pick'];
+
+        if ($newQty < 0) {
+            $this->db->rollBack();
+            return false;
+        }
+
+        // 3. update inventory quantity
+        $inventory = new InventoryItem();
+        $inventory->attach(new ReorderObserver());
+        $inventory->updateQuantity($task['inv_item_id'], $newQty);
+
+        // 4. update task status
+        $stmt = $this->db->prepare("UPDATE pick_task SET status = 'Picked' WHERE picktask_id = :id");
+        $stmt->execute([':id' => $task_id]);
+
+        // 5. write audit log
+        $audit = new AuditLog();
+        $audit->record(
+            $task['inv_item_id'],
+            'PICKING',
+            -((int)$task['quantity_to_pick']),
+            $staff_id,
+            'staff',
+            $task_id
+        );
+
+        $this->db->commit();
+        return true;
+
+    } catch (Exception $e) {
+        $this->db->rollBack();
+        return false;
     }
+}
 }

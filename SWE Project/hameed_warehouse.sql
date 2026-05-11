@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 09, 2026 at 02:38 PM
+-- Generation Time: May 11, 2026 at 10:16 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -65,7 +65,7 @@ CREATE TABLE `client` (
 --
 
 INSERT INTO `client` (`client_id`, `name`, `email`, `password`, `shipping_address`, `loyalty_points`, `total_orders_placed`, `client_type`) VALUES
-(1, 'Ahmed', 'ahmedsaleem12345@gmail.com', '12345', 'N/A', 5, 4, NULL);
+(1, 'Ahmed', 'ahmedsaleem12345@gmail.com', '12345', 'N/A', 79, 13, NULL);
 
 -- --------------------------------------------------------
 
@@ -81,24 +81,27 @@ CREATE TABLE `floorstaff` (
   `shift_start` time NOT NULL,
   `shift_end` time NOT NULL,
   `productivity_score` float NOT NULL,
-  `user_id` int(11) DEFAULT NULL
+  `user_id` int(11) DEFAULT NULL,
+  `primary_zone` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `floorstaff`
 --
 
-INSERT INTO `floorstaff` (`staff_id`, `name`, `email`, `password`, `shift_start`, `shift_end`, `productivity_score`, `user_id`) VALUES
-(1, 'zizo', 'staff_1777825586@hameed.com', '123456', '09:00:00', '17:00:00', 98.2, NULL),
-(4, 'heeed', 'ahmedhammmeed1212@gmail.com', 'FWC1nF1.)%', '08:00:00', '14:00:00', 1.6, NULL),
-(6, 'pipo', 'pipo@gmail.com', '222', '08:00:00', '14:00:00', 1.3, NULL),
-(7, 'Acdemy', 'ahmedhammmeed1212@gmail.com', '$2y$10$iCR7R/Bo49j3zzcgQ732F.skHeLsBTS2SB6KCITQ5qPMAstE2axpa', '00:00:00', '00:00:00', 0, NULL),
-(8, 'tester', 'test@test.com', '123', '08:00:00', '16:00:00', 90, NULL),
-(9, 'staff', 's@s.com', '123', '08:00:00', '16:00:00', 90, NULL),
-(10, 'Ahmed', 'ahmed@test.com', '$2y$10$5FF5ZRva1AXA/twIKUVU1.gmijcRHJaSQV/2LqdMkGIh.MqYALZHS', '08:00:00', '16:00:00', 90, NULL),
-(11, 'Ahmed', 'ahmed@test.com', '$2y$10$Sr1k/dIU1SN9/NxQFtsIW.OO8Nz.S3qeMwDhzW/SbjWVvswyRQNTW', '08:00:00', '16:00:00', 90, NULL),
-(12, 'Ahmed', 'ahmed@test.com', '$2y$10$uxNVbeDrkv18Y7hOfvARC.fZkDv/BpuOqTjk9OtzpZZ8v2ouuy0a6', '08:00:00', '16:00:00', 90, NULL),
-(13, 'Ahmd Selim', 'ahmedsaleem12345@gmail.com', '12345', '08:00:00', '16:00:00', 0, NULL);
+INSERT INTO `floorstaff` (`staff_id`, `name`, `email`, `password`, `shift_start`, `shift_end`, `productivity_score`, `user_id`, `primary_zone`) VALUES
+(1, 'zizo', 'staff_1777825586@hameed.com', '123456', '09:00:00', '17:00:00', 98.2, NULL, NULL),
+(4, 'heeed', 'ahmedhammmeed1212@gmail.com', 'FWC1nF1.)%', '08:00:00', '14:00:00', 1.6, NULL, NULL),
+(6, 'pipo', 'pipo@gmail.com', '222', '08:00:00', '14:00:00', 1.3, NULL, NULL),
+(7, 'Acdemy', 'ahmedhammmeed1212@gmail.com', '$2y$10$iCR7R/Bo49j3zzcgQ732F.skHeLsBTS2SB6KCITQ5qPMAstE2axpa', '00:00:00', '00:00:00', 0, NULL, NULL),
+(8, 'tester', 'test@test.com', '123', '08:00:00', '16:00:00', 90, NULL, NULL),
+(10, 'Ahmed', 'ahmed@test.com', '$2y$10$5FF5ZRva1AXA/twIKUVU1.gmijcRHJaSQV/2LqdMkGIh.MqYALZHS', '08:00:00', '16:00:00', 90, NULL, NULL),
+(11, 'Ahmed', 'ahmed@test.com', '$2y$10$Sr1k/dIU1SN9/NxQFtsIW.OO8Nz.S3qeMwDhzW/SbjWVvswyRQNTW', '08:00:00', '16:00:00', 90, NULL, NULL),
+(12, 'Ahmed', 'ahmed@test.com', '$2y$10$uxNVbeDrkv18Y7hOfvARC.fZkDv/BpuOqTjk9OtzpZZ8v2ouuy0a6', '08:00:00', '16:00:00', 90, NULL, NULL),
+(15, 'Ahmed', 'Ahmedselim20006@gmail.com', '123123', '16:00:00', '00:00:00', 0, NULL, 'TestZone'),
+(16, 'Ahmd Selim', 'a@gmail.com', '12345', '08:00:00', '16:00:00', 0, NULL, 'Z'),
+(17, 'Ahmed', 'ahmedsaleem12345@gmail.com', '12345', '16:00:00', '00:00:00', 0, NULL, 'TestZone'),
+(18, 'SELIM', 'Selim@gmail.com', '12345', '16:00:00', '00:00:00', 0, NULL, 'Z');
 
 -- --------------------------------------------------------
 
@@ -124,9 +127,23 @@ CREATE TABLE `inventory_audit_log` (
 --
 
 INSERT INTO `inventory_audit_log` (`log_id`, `inv_item_id`, `action_type`, `change_amount`, `performer_id`, `performer_role`, `reference_id`, `quantity_before`, `quantity_after`, `created_at`) VALUES
-(0, 1, 'PICKING', -5, 1, 'staff', 11, 85, 80, '2026-05-09 13:58:35'),
 (1, 1, 'SUPPLY', 50, 1, 'supplier', 101, 135, 185, '2026-05-07 19:27:35'),
-(2, 1, 'PICKING', -10, 1, 'staff', 501, 125, 115, '2026-05-07 19:27:35');
+(2, 1, 'PICKING', -10, 1, 'staff', 501, 125, 115, '2026-05-07 19:27:35'),
+(3, 16, 'PICKING', -3, 15, 'staff', 15, 7, 4, '2026-05-11 20:56:48'),
+(4, 7, 'PICKING', -1, 17, 'staff', 18, 6, 5, '2026-05-11 21:10:49'),
+(5, 7, 'PICKING', -1, 17, 'staff', 18, 5, 4, '2026-05-11 21:10:53'),
+(6, 8, 'PICKING', -1, 18, 'staff', 19, 69, 68, '2026-05-11 21:11:29'),
+(7, 16, '', 0, 0, '', 3, 6, 6, '2026-05-11 21:24:53'),
+(8, 16, 'PICKING', -1, 15, 'staff', 20, 6, 5, '2026-05-11 21:24:53'),
+(9, 16, 'PICKING', -1, 15, 'staff', 17, 5, 4, '2026-05-11 21:34:40'),
+(10, 16, 'PICKING', -1, 15, 'staff', 21, 4, 3, '2026-05-11 21:35:55'),
+(11, 7, '', 0, 0, '', 4, 4, 4, '2026-05-11 21:40:15'),
+(12, 7, 'PICKING', -1, 15, 'staff', 22, 4, 3, '2026-05-11 21:40:15'),
+(13, 16, '', 0, 0, '', 5, 3, 3, '2026-05-11 21:56:56'),
+(14, 16, 'PICKING', -1, 15, 'staff', 23, 3, 2, '2026-05-11 21:56:56'),
+(15, 16, 'SUPPLY', 40, 1, 'supplier', 5, 43, 83, '2026-05-11 21:57:38'),
+(16, 16, 'SUPPLY', 40, 1, 'supplier', 5, 83, 123, '2026-05-11 21:58:21'),
+(17, 1, 'SUPPLY', 23, 1, 'supplier', 6, 108, 131, '2026-05-11 22:21:14');
 
 -- --------------------------------------------------------
 
@@ -147,11 +164,16 @@ CREATE TABLE `inventory_item` (
 --
 
 INSERT INTO `inventory_item` (`inv_item_id`, `product_id`, `bin_id`, `quantity`, `status`) VALUES
-(1, 1, 1, 85, 'Available'),
+(1, 1, 1, 108, 'Available'),
 (5, 1, 1, 100, 'Available'),
 (6, 1, 1, 100, 'Available'),
-(7, 5, 1, 7, 'Available'),
-(8, 6, 2, 70, 'Available');
+(7, 5, 1, 4, 'Available'),
+(8, 6, 2, 69, 'Available'),
+(9, 7, 1, 15, 'Available'),
+(10, 8, 1, 15, 'Available'),
+(11, 9, 2, 15, 'Available'),
+(16, 14, 1, 83, 'Available'),
+(18, 16, 2, 10, 'Available');
 
 -- --------------------------------------------------------
 
@@ -202,7 +224,16 @@ INSERT INTO `order` (`order_id`, `date`, `status`, `total_weight`, `total_cost`,
 (11, '2026-05-09 14:29:17', 'Pending', 4, 260.00, 1),
 (12, '2026-05-09 14:29:53', 'Pending', 4, 260.00, 1),
 (13, '2026-05-09 14:33:47', 'Pending', 4, 260.00, 1),
-(14, '2026-05-09 14:33:52', 'Pending', 5, 50.00, 1);
+(14, '2026-05-09 14:33:52', 'Pending', 5, 50.00, 1),
+(15, '2026-05-11 18:10:00', 'Pending', 11, 99.00, 1),
+(16, '2026-05-11 18:10:11', 'Pending', 8, 182.00, 1),
+(17, '2026-05-11 20:46:19', 'Pending', 5, 3075.00, 1),
+(18, '2026-05-11 20:56:26', 'Pending', 3, 1845.00, 1),
+(19, '2026-05-11 21:10:32', 'Pending', 4, 737.00, 1),
+(20, '2026-05-11 21:24:05', 'Pending', 1, 615.00, 1),
+(21, '2026-05-11 21:35:43', 'Pending', 1, 615.00, 1),
+(22, '2026-05-11 21:39:14', 'Pending', 1, 61.00, 1),
+(23, '2026-05-11 21:56:37', 'Pending', 1, 615.00, 1);
 
 -- --------------------------------------------------------
 
@@ -242,7 +273,19 @@ INSERT INTO `picklist_order` (`pick_list_id`, `order_id`) VALUES
 (10, 8),
 (11, 9),
 (12, 13),
-(13, 14);
+(13, 14),
+(14, 15),
+(15, 16),
+(16, 17),
+(17, 18),
+(18, 19),
+(19, 19),
+(20, 19),
+(21, 19),
+(22, 20),
+(23, 21),
+(24, 22),
+(25, 23);
 
 -- --------------------------------------------------------
 
@@ -274,7 +317,19 @@ INSERT INTO `pick_list` (`pick_list_id`, `created_at`, `status`, `optimized_rout
 (10, '2026-05-08 00:56:03', 'Open', NULL, NULL),
 (11, '2026-05-08 01:00:54', 'Open', NULL, 1),
 (12, '2026-05-09 14:33:47', 'Open', NULL, NULL),
-(13, '2026-05-09 14:33:52', 'Open', NULL, NULL);
+(13, '2026-05-09 14:33:52', 'Open', NULL, NULL),
+(14, '2026-05-11 18:10:00', 'Open', NULL, NULL),
+(15, '2026-05-11 18:10:11', 'Open', NULL, NULL),
+(16, '2026-05-11 20:46:19', 'Open', NULL, 15),
+(17, '2026-05-11 20:56:26', 'Open', NULL, 15),
+(18, '2026-05-11 21:10:32', 'Open', NULL, 16),
+(19, '2026-05-11 21:10:32', 'Open', NULL, 15),
+(20, '2026-05-11 21:10:32', 'Open', NULL, 17),
+(21, '2026-05-11 21:10:32', 'Open', NULL, 18),
+(22, '2026-05-11 21:24:05', 'Open', NULL, 15),
+(23, '2026-05-11 21:35:43', 'Open', NULL, 15),
+(24, '2026-05-11 21:39:14', 'Open', NULL, 15),
+(25, '2026-05-11 21:56:37', 'Open', NULL, 15);
 
 -- --------------------------------------------------------
 
@@ -297,7 +352,19 @@ CREATE TABLE `pick_task` (
 INSERT INTO `pick_task` (`picktask_id`, `pick_list_id`, `quantity_to_pick`, `status`, `inv_item_id`) VALUES
 (4, 4, 5, 'Picked', 1),
 (5, 5, 5, 'Picked', 1),
-(11, 11, 5, 'Picked', 1);
+(11, 11, 5, 'Picked', 1),
+(12, 14, 11, 'Pending', 8),
+(13, 15, 2, 'Pending', 7),
+(14, 16, 5, 'Picked', 16),
+(15, 17, 3, 'Picked', 16),
+(16, 18, 1, 'Pending', 18),
+(17, 19, 1, 'Picked', 16),
+(18, 20, 1, 'Picked', 7),
+(19, 21, 1, 'Picked', 8),
+(20, 22, 1, 'Picked', 16),
+(21, 23, 1, 'Picked', 16),
+(22, 24, 1, 'Picked', 7),
+(23, 25, 1, 'Picked', 16);
 
 -- --------------------------------------------------------
 
@@ -322,7 +389,9 @@ INSERT INTO `product` (`product_id`, `SKU`, `name`, `basePrice`, `category`, `mi
 (1, 'TESTSKU', 'TestProduct', 50.00, NULL, 0),
 (2, 'T1', 'Test', 10.00, NULL, 0),
 (5, 'T5', 'low', 61.00, 'Lowstck', 10),
-(6, 'SKU-1', 'Test999', 9.00, 'Electro', 20);
+(6, 'SKU-2', 'Test1000', 10.00, 'Electronics', 25),
+(14, '123', 'abc', 615.00, 'mobiles', 20),
+(16, '258', 'new', 51.00, 'nothing', 20);
 
 -- --------------------------------------------------------
 
@@ -347,7 +416,12 @@ CREATE TABLE `purchaseorder` (
 --
 
 INSERT INTO `purchaseorder` (`po_id`, `status`, `total_cost`, `created_at`, `expected_delivery_date`, `supplier_id`, `po_number`, `total_value`, `order_date`) VALUES
-(1, 'pending', 0.00, '2026-05-09 15:33:12', '2026-05-09 00:00:00', 1, 'PO-00001', 50.00, '2026-05-09 15:33:12');
+(1, 'shipped', 0.00, '2026-05-09 15:33:12', '2026-05-09 00:00:00', 1, 'PO-00001', 50.00, '2026-05-09 15:33:12'),
+(2, 'pending', 0.00, '2026-05-11 18:20:56', '2026-05-11 00:00:00', 1, 'PO-00002', 50.00, '2026-05-11 18:20:56'),
+(3, 'delivered', 0.00, '2026-05-11 21:24:53', NULL, 1, NULL, 0.00, '2026-05-11 21:24:53'),
+(4, 'delivered', 1220.00, '2026-05-11 21:40:15', '2026-05-18 00:00:00', 1, 'PO-0004', 1220.00, '2026-05-11 21:40:15'),
+(5, '', 24600.00, '2026-05-11 21:56:56', '2026-05-18 00:00:00', 1, 'PO-0005', 24600.00, '2026-05-11 21:56:56'),
+(6, 'delivered', 0.00, '2026-05-11 22:18:58', '2026-05-11 00:00:00', 1, 'PO-00006', 230.00, '2026-05-11 22:18:58');
 
 -- --------------------------------------------------------
 
@@ -362,6 +436,16 @@ CREATE TABLE `purchase_order_items` (
   `unit_price` decimal(10,2) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `purchase_order_items`
+--
+
+INSERT INTO `purchase_order_items` (`po_id`, `product_id`, `quantity_ordered`, `unit_price`) VALUES
+(3, 14, 40, 0.00),
+(4, 5, 20, 61.00),
+(5, 14, 40, 615.00),
+(6, 1, 23, 10.00);
+
 -- --------------------------------------------------------
 
 --
@@ -374,6 +458,13 @@ CREATE TABLE `shipment` (
   `items_received` int(11) DEFAULT 0,
   `po_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `shipment`
+--
+
+INSERT INTO `shipment` (`shipment_id`, `status`, `items_received`, `po_id`) VALUES
+(1, '', 1, 3);
 
 -- --------------------------------------------------------
 
@@ -389,6 +480,13 @@ CREATE TABLE `shipping_label` (
   `tracking_number` varchar(100) DEFAULT NULL,
   `order_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `shipping_label`
+--
+
+INSERT INTO `shipping_label` (`label_id`, `qr_code`, `status`, `generated_at`, `tracking_number`, `order_id`) VALUES
+(0, 'ORD-20', 'generated', '2026-05-11 22:53:54', 'TRK-1778529234', 20);
 
 -- --------------------------------------------------------
 
@@ -494,8 +592,6 @@ CREATE TABLE `zone` (
 
 INSERT INTO `zone` (`zone_id`, `zone_name`, `max_capacity`) VALUES
 (1, 'TestZone', 100),
-(2, 'Z', 100),
-(1, 'TestZone', 100),
 (2, 'Z', 100);
 
 --
@@ -592,6 +688,12 @@ ALTER TABLE `purchaseorder`
   ADD PRIMARY KEY (`po_id`);
 
 --
+-- Indexes for table `shipment`
+--
+ALTER TABLE `shipment`
+  ADD PRIMARY KEY (`shipment_id`);
+
+--
 -- Indexes for table `warehouse_config`
 --
 ALTER TABLE `warehouse_config`
@@ -608,10 +710,22 @@ ALTER TABLE `client`
   MODIFY `client_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
+-- AUTO_INCREMENT for table `floorstaff`
+--
+ALTER TABLE `floorstaff`
+  MODIFY `staff_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+
+--
+-- AUTO_INCREMENT for table `inventory_audit_log`
+--
+ALTER TABLE `inventory_audit_log`
+  MODIFY `log_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+
+--
 -- AUTO_INCREMENT for table `inventory_item`
 --
 ALTER TABLE `inventory_item`
-  MODIFY `inv_item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `inv_item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT for table `invoice`
@@ -623,7 +737,7 @@ ALTER TABLE `invoice`
 -- AUTO_INCREMENT for table `order`
 --
 ALTER TABLE `order`
-  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT for table `packing_material`
@@ -635,31 +749,37 @@ ALTER TABLE `packing_material`
 -- AUTO_INCREMENT for table `picklist_order`
 --
 ALTER TABLE `picklist_order`
-  MODIFY `pick_list_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `pick_list_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT for table `pick_list`
 --
 ALTER TABLE `pick_list`
-  MODIFY `pick_list_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `pick_list_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT for table `pick_task`
 --
 ALTER TABLE `pick_task`
-  MODIFY `picktask_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `picktask_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT for table `product`
 --
 ALTER TABLE `product`
-  MODIFY `product_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `product_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `purchaseorder`
 --
 ALTER TABLE `purchaseorder`
-  MODIFY `po_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `po_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- AUTO_INCREMENT for table `shipment`
+--
+ALTER TABLE `shipment`
+  MODIFY `shipment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

@@ -1,6 +1,7 @@
 <?php
-$orders    = $data['orders']    ?? [];
+$orders    = $data['orders'] ?? [];
 $suppliers = $data['suppliers'] ?? [];
+$products  = $data['products'] ?? [];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -24,7 +25,6 @@ $suppliers = $data['suppliers'] ?? [];
       <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Manager/zonaloptimizer"><i class="bi bi-layers"></i> Zonal Optimizer</a>
       <a class="nav-link active" href="<?= BASE_URL ?>index.php?url=Manager/procurement"><i class="bi bi-cart3"></i> Procurement</a>
       <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Manager/supplier"><i class="bi bi-truck"></i> Suppliers</a>
-      <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Manager/analytics"><i class="bi bi-graph-up"></i> Analytics</a>
       <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Manager/clients"><i class="bi bi-people"></i> Clients</a>
       <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Manager/adduser"><i class="bi bi-person-plus"></i> Add User</a>
       <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Manager/systemadmin"><i class="bi bi-gear"></i> System Admin</a>
@@ -155,6 +155,29 @@ $suppliers = $data['suppliers'] ?? [];
           <div class="mb-3">
             <label class="form-label">Total Value ($)</label>
             <input type="number" name="total_value" class="form-control" step="0.01" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Product</label>
+            <select name="product_id" class="form-select" required>
+              <option value="">Select Product...</option>
+              <?php if (!empty($products)): ?>
+                <?php foreach ($products as $p): ?>
+                  <option value="<?= (int)$p['product_id'] ?>">
+                    <?= htmlspecialchars($p['name']) ?> (<?= htmlspecialchars($p['SKU']) ?>)
+                  </option>
+                <?php endforeach; ?>
+              <?php endif; ?>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Quantity Ordered</label>
+            <input type="number" name="quantity_ordered" class="form-control" min="1" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Unit Price</label>
+            <input type="number" name="unit_price" class="form-control" step="0.01" min="0" required>
           </div>
         </div>
         <div class="modal-footer">

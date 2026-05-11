@@ -31,71 +31,117 @@ class ClientController extends Controller {
 
     // 2. معالجة بيانات الأوردر (أهم جزء)
     public function submitOrder()
-    {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
+{
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // 1. استلام البيانات
-            $clientId    = $_SESSION['user_id'] ?? $_POST['client_id'];
-            $totalWeight = $_POST['total_weight'] ?? 0;
-            $totalCost   = $_POST['total_cost'] ?? 0;
-            $productIds  = $_POST['product_id'] ?? []; 
-            $quantities  = $_POST['qty'] ?? [];
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $clientId    = $_SESSION['user_id'] ?? ($_POST['client_id'] ?? null);
+        $totalWeight = $_POST['total_weight'] ?? 0;
+        $totalCost   = $_POST['total_cost'] ?? 0;
+        $productIds  = $_POST['product_id'] ?? [];
+        $quantities  = $_POST['qty'] ?? [];
 
-            // 2. استدعاء الموديلات
-            require_once __DIR__ . "/../models/Order.php";
-            require_once __DIR__ . "/../models/PickList.php";
-            require_once __DIR__ . "/../models/PickTask.php";
-            require_once __DIR__ . "/../models/Client.php";
-            require_once __DIR__ . "/../models/InventoryItem.php"; // الموديل الجديد بتاعك
+        require_once __DIR__ . "/../models/order.php";
+        require_once __DIR__ . "/../models/PickList.php";
+        require_once __DIR__ . "/../models/PickTask.php";
+        require_once __DIR__ . "/../models/client.php";
+        require_once __DIR__ . "/../models/FloorStaff.php";
 
-            $orderModel = new Order();
-            $plModel    = new PickList();
-            $ptModel    = new PickTask();
-            $clientModel = new Client();
-            $inventoryModel = new InventoryItem();
+        $orderModel   = new Order();
+        $plModel      = new PickList();
+        $ptModel      = new PickTask();
+        $clientModel  = new Client();
+        $staffModel   = new FloorStaff('', '', '');
+        $db           = Database::getInstance()->getConnection();
 
-            // --- الخطوة الأولى: إنشاء سجل الأوردر ---
-            $orderId = $orderModel->create($clientId);
-            
-            if ($orderId) {
-                $orderModel->updateTotals($orderId, $totalWeight, $totalCost);
+        $orderId = $orderModel->create($clientId);
 
-                // --- الخطوة الثانية: إنشاء Pick List وربطها ---
-                $pickListId = $plModel->create(null); 
-                $this->dbDirectLink($orderId, $pickListId);
+        if ($orderId) {
+            $orderModel->updateTotals($orderId, $totalWeight, $totalCost);
 
-                // --- الخطوة الثالثة: الربط مع المخزن وإنشاء الـ Tasks ---
-                foreach ($productIds as $index => $pId) {
-                    $qtyRequested = $quantities[$index];
+            // pick list لكل staff داخل نفس order
+            $staffPickLists = [];
 
-                    // البحث عن inv_item_id للمنتج ده من الداتابيز
-                    $db = Database::getInstance()->getConnection();
-                    $stmt = $db->prepare("SELECT inv_item_id FROM inventory_item WHERE product_id = :pid AND quantity >= :qty LIMIT 1");
-                    $stmt->execute([':pid' => $pId, ':qty' => $qtyRequested]);
-                    $inventory = $stmt->fetch(PDO::FETCH_ASSOC);
+            // index لكل zone علشان round robin
+            $zoneIndexes = [];
 
-                    if ($inventory) {
-                        // دلوقتي بنبعت inv_item_id صحيح موجود فعلاً في الداتابيز
-                        $ptModel->create($pickListId, $inventory['inv_item_id'], $qtyRequested);
-                    } else {
-                        // لو الصنف مش موجود في المخزن بالكمية دي، ممكن تطلع Error للمدير أو العميل
-                        // حالياً هنكمل عشان الفلو ما يقفش، بس في الشغل الحقيقي بنعمل "Backorder"
-                        continue; 
-                    }
+            foreach ($productIds as $index => $pId) {
+                $qtyRequested = (int)($quantities[$index] ?? 0);
+
+                if (!$pId || $qtyRequested <= 0) {
+                    continue;
                 }
 
-                // --- الخطوة الرابعة: تحديث بيانات العميل ---
-                $clientModel->incrementOrderCount($clientId);
-                $clientModel->addLoyaltyPoints($clientId, floor($totalCost / 100));
+                // هات inventory item + zone
+                $sql = "SELECT 
+                            ii.inv_item_id,
+                            ii.product_id,
+                            ii.quantity,
+                            z.zone_name
+                        FROM inventory_item ii
+                        JOIN bin b ON ii.bin_id = b.bin_id
+                        JOIN zone z ON b.zone_id = z.zone_id
+                        WHERE ii.product_id = :pid
+                        AND ii.quantity >= :qty
+                        ORDER BY ii.inv_item_id ASC
+                        LIMIT 1";
 
-                header('Location: index.php?url=Client/createOrder&status=success');
-                exit;
+                $stmt = $db->prepare($sql);
+                $stmt->execute([
+                    ':pid' => $pId,
+                    ':qty' => $qtyRequested
+                ]);
+                $inventory = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                if (!$inventory) {
+                    continue;
+                }
+
+                $zoneName = $inventory['zone_name'];
+
+                // هات كل staff في نفس الزون
+                $staffMembers = $staffModel->getByPrimaryZone($zoneName);
+
+                if (empty($staffMembers)) {
+                    continue;
+                }
+
+                // لو أول مرة نقابل الزون، ابدأ من أول staff
+                if (!isset($zoneIndexes[$zoneName])) {
+                    $zoneIndexes[$zoneName] = 0;
+                }
+
+                // اختار staff الحالي
+                $currentIndex = $zoneIndexes[$zoneName] % count($staffMembers);
+                $assignedStaff = $staffMembers[$currentIndex];
+                $staffId = $assignedStaff['staff_id'];
+
+                // زوّد المؤشر للمنتج اللي بعده في نفس الزون
+                $zoneIndexes[$zoneName]++;
+
+                // اعمل pick list مرة واحدة فقط لكل staff في نفس order
+                if (!isset($staffPickLists[$staffId])) {
+                    $pickListId = $plModel->create($staffId);
+                    $this->dbDirectLink($orderId, $pickListId);
+                    $staffPickLists[$staffId] = $pickListId;
+                } else {
+                    $pickListId = $staffPickLists[$staffId];
+                }
+
+                // أنشئ task
+                $ptModel->create($pickListId, $inventory['inv_item_id'], $qtyRequested);
             }
+
+            $clientModel->incrementOrderCount($clientId);
+            $clientModel->addLoyaltyPoints($clientId, floor($totalCost / 100));
+
+            header('Location: index.php?url=Client/createOrder&status=success');
+            exit;
         }
     }
+}
 
     // فانكشن مساعدة للربط السريع في الجدول الوسيط
     private function dbDirectLink($orderId, $plId) {

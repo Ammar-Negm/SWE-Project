@@ -20,7 +20,6 @@
       <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Manager/zonaloptimizer"><i class="bi bi-layers"></i> Zonal Optimizer</a>
       <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Manager/procurement"><i class="bi bi-cart3"></i> Procurement</a>
       <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Manager/supplier"><i class="bi bi-truck"></i> Suppliers</a>
-      <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Manager/analytics"><i class="bi bi-graph-up"></i> Analytics</a>
       <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Manager/clients"><i class="bi bi-people"></i> Clients</a>
       <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Manager/adduser"><i class="bi bi-person-plus"></i> Add User</a>
       <a class="nav-link" href="<?= BASE_URL ?>index.php?url=Manager/systemadmin"><i class="bi bi-gear"></i> System Admin</a>
@@ -48,28 +47,37 @@
         <div class="alert alert-success">Operation completed successfully.</div>
       <?php endif; ?>
 
+      <?php if (!empty($_GET['error'])): ?>
+        <div class="alert alert-danger">Operation failed.</div>
+      <?php endif; ?>
+
       <?php if (!empty($error)): ?>
         <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
       <?php endif; ?>
 
       <div class="row mb-3 align-items-center">
         <div class="col-md-4 mb-2 mb-md-0">
-          <input type="text" class="form-control" placeholder="Search by SKU or Name...">
+          <input type="text" id="searchInput" class="form-control" placeholder="Search by SKU or Name...">
         </div>
+
         <div class="col-md-3 mb-2 mb-md-0">
-          <select class="form-select">
+          <select class="form-select" id="zoneFilter">
             <option value="">Filter by Zone</option>
-            <option value="A">Zone A</option>
-            <option value="B">Zone B</option>
+            <option value="z">z</option>
+            <option value="testzone">TestZone</option>
+            <option value="not assigned">Not Assigned</option>
           </select>
         </div>
+
         <div class="col-md-3 mb-2 mb-md-0">
-          <select class="form-select">
+          <select class="form-select" id="statusFilter">
             <option value="">Filter by Status</option>
-            <option value="instock">In Stock</option>
-            <option value="low">Low Stock</option>
+            <option value="in stock">In Stock</option>
+            <option value="low stock">Low Stock</option>
+            <option value="out of stock">Out of Stock</option>
           </select>
         </div>
+
         <div class="col-md-2 text-md-end">
           <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#addItemModal">
             <i class="bi bi-plus-lg"></i> Add Item
@@ -92,10 +100,25 @@
                 <th>Actions</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody id="inventoryTableBody">
               <?php if (!empty($products)): ?>
                 <?php foreach ($products as $p): ?>
-                  <tr>
+                  <tr
+                    data-sku="<?= htmlspecialchars(strtolower($p['SKU'] ?? '')) ?>"
+                    data-name="<?= htmlspecialchars(strtolower($p['name'] ?? '')) ?>"
+                    data-zone="<?= htmlspecialchars(strtolower(!empty($p['zones']) ? $p['zones'] : 'not assigned')) ?>"
+                    data-status="<?php
+                      $available = (float)($p['total_available'] ?? 0);
+                      $minStock  = (float)($p['minStockLevel'] ?? 0);
+
+                      if ($available > $minStock) {
+                        echo 'in stock';
+                      } elseif ($available > 0) {
+                        echo 'low stock';
+                      } else {
+                        echo 'out of stock';
+                      }
+                    ?>">
                     <td><?= htmlspecialchars($p['SKU'] ?? '') ?></td>
                     <td><?= htmlspecialchars($p['name'] ?? '') ?></td>
                     <td>
@@ -103,7 +126,7 @@
                         <?= htmlspecialchars(!empty($p['zones']) ? $p['zones'] : 'Not Assigned') ?>
                       </span>
                     </td>
-                    <td class="fw-bold text-primary"><?= number_format((float)($p['total_available'] ?? 0)) ?></td>
+                    <td class="fw-bold text-primary"><?= (float)($p['total_available'] ?? 0) ?></td>
                     <td>—</td>
                     <td>$<?= number_format((float)($p['basePrice'] ?? 0), 2) ?></td>
                     <td>
@@ -111,25 +134,24 @@
                         $available = (float)($p['total_available'] ?? 0);
                         $minStock  = (float)($p['minStockLevel'] ?? 0);
                       ?>
-                      <?php if ($available > $minStock): ?>
-                        <span class="badge bg-success">In Stock</span>
-                      <?php elseif ($available > 0): ?>
+
+                      <?php if ($available == 0): ?>
+                        <span class="badge bg-danger">Out of Stock</span>
+                      <?php elseif ($available <= $minStock): ?>
                         <span class="badge bg-warning text-dark">Low Stock</span>
                       <?php else: ?>
-                        <span class="badge bg-danger">Out of Stock</span>
+                        <span class="badge bg-success">In Stock</span>
                       <?php endif; ?>
                     </td>
                     <td>
                       <button
-                        class="btn btn-sm btn-outline-primary"
-                        onclick="openEdit(
-                          <?= (int)$p['product_id'] ?>,
-                          <?= json_encode($p['SKU'] ?? '') ?>,
-                          <?= json_encode($p['name'] ?? '') ?>,
-                          <?= json_encode($p['basePrice'] ?? 0) ?>,
-                          <?= json_encode($p['prod_cat'] ?? '') ?>,
-                          <?= json_encode($p['minStockLevel'] ?? 0) ?>
-                        )">
+                        class="btn btn-sm btn-outline-primary edit-btn"
+                        data-id="<?= (int)$p['product_id'] ?>"
+                        data-sku="<?= htmlspecialchars($p['SKU'] ?? '', ENT_QUOTES) ?>"
+                        data-name="<?= htmlspecialchars($p['name'] ?? '', ENT_QUOTES) ?>"
+                        data-price="<?= htmlspecialchars($p['basePrice'] ?? 0, ENT_QUOTES) ?>"
+                        data-category="<?= htmlspecialchars($p['prod_cat'] ?? '', ENT_QUOTES) ?>"
+                        data-minstock="<?= htmlspecialchars($p['minStockLevel'] ?? 0, ENT_QUOTES) ?>">
                         <i class="bi bi-pencil"></i>
                       </button>
 
@@ -283,17 +305,56 @@
     });
   }
 
-  function openEdit(id, sku, name, price, category, minStock) {
-    document.getElementById('edit_sku').value = sku ?? '';
-    document.getElementById('edit_name').value = name ?? '';
-    document.getElementById('edit_price').value = price ?? '';
-    document.getElementById('edit_category').value = category ?? '';
-    document.getElementById('edit_minStock').value = minStock ?? '';
-    document.getElementById('editForm').action =
-      '<?= BASE_URL ?>index.php?url=Manager/editProduct/' + id;
+  document.querySelectorAll('.edit-btn').forEach(button => {
+    button.addEventListener('click', function () {
+      const id = this.dataset.id;
+      const sku = this.dataset.sku;
+      const name = this.dataset.name;
+      const price = this.dataset.price;
+      const category = this.dataset.category;
+      const minStock = this.dataset.minstock;
 
-    new bootstrap.Modal(document.getElementById('editItemModal')).show();
+      document.getElementById('edit_sku').value = sku || '';
+      document.getElementById('edit_name').value = name || '';
+      document.getElementById('edit_price').value = price || '';
+      document.getElementById('edit_category').value = category || '';
+      document.getElementById('edit_minStock').value = minStock || '';
+
+      document.getElementById('editForm').action =
+        '<?= BASE_URL ?>index.php?url=Manager/editProduct/' + id;
+
+      const modal = new bootstrap.Modal(document.getElementById('editItemModal'));
+      modal.show();
+    });
+  });
+
+    const searchInput = document.getElementById('searchInput');
+  const zoneFilter = document.getElementById('zoneFilter');
+  const statusFilter = document.getElementById('statusFilter');
+  const tableRows = document.querySelectorAll('#inventoryTableBody tr');
+
+  function filterTable() {
+    const searchValue = (searchInput.value || '').toLowerCase().trim();
+    const zoneValue = (zoneFilter.value || '').toLowerCase().trim();
+    const statusValue = (statusFilter.value || '').toLowerCase().trim();
+
+    tableRows.forEach(row => {
+      const sku = row.dataset.sku || '';
+      const name = row.dataset.name || '';
+      const zone = row.dataset.zone || '';
+      const status = row.dataset.status || '';
+
+      const matchesSearch = !searchValue || sku.includes(searchValue) || name.includes(searchValue);
+      const matchesZone = !zoneValue || zone.includes(zoneValue);
+      const matchesStatus = !statusValue || status === statusValue;
+
+      row.style.display = (matchesSearch && matchesZone && matchesStatus) ? '' : 'none';
+    });
   }
+
+  if (searchInput) searchInput.addEventListener('input', filterTable);
+  if (zoneFilter) zoneFilter.addEventListener('change', filterTable);
+  if (statusFilter) statusFilter.addEventListener('change', filterTable);
 </script>
 </body>
 </html>
